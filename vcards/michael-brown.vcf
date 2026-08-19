@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Brown;Michael;;;
+FN:Michael Brown
+ORG:Sterling & Cross
+TITLE:Partner, Chair, Criminal Defense & White Collar
+TEL;TYPE=WORK,VOICE:(202) 555-0188
+EMAIL:m.brown@sterlingcross.law
+ADR;TYPE=WORK:;;Washington DC Office;;;;
+URL:https://sterlingcross.law/attorney-michael-brown.html
+END:VCARD

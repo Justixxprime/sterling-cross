@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Webb;Marcus;;;
+FN:Marcus Webb
+ORG:Sterling & Cross
+TITLE:Partner, Chair, Antitrust & Competition
+TEL;TYPE=WORK,VOICE:(202) 555-0201
+EMAIL:m.webb@sterlingcross.law
+ADR;TYPE=WORK:;;Washington DC Office;;;;
+URL:https://sterlingcross.law/attorney-marcus-webb.html
+END:VCARD

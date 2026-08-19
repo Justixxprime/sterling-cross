@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Smith;Jane;;;
+FN:Jane Smith
+ORG:Sterling & Cross
+TITLE:Partner, Chair, Family Law
+TEL;TYPE=WORK,VOICE:(312) 555-0156
+EMAIL:j.smith@sterlingcross.law
+ADR;TYPE=WORK:;;Chicago Office;;;;
+URL:https://sterlingcross.law/attorney-jane-smith.html
+END:VCARD

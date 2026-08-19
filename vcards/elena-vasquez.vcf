@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Vasquez;Elena;;;
+FN:Elena Vasquez
+ORG:Sterling & Cross
+TITLE:Associate, Real Estate
+TEL;TYPE=WORK,VOICE:(310) 555-0166
+EMAIL:e.vasquez@sterlingcross.law
+ADR;TYPE=WORK:;;Los Angeles Office;;;;
+URL:https://sterlingcross.law/attorney-elena-vasquez.html
+END:VCARD

@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Doe;John;;;
+FN:John Doe
+ORG:Sterling & Cross
+TITLE:Senior Partner, Chair, Corporate & M&A
+TEL;TYPE=WORK,VOICE:(312) 555-0142
+EMAIL:j.doe@sterlingcross.law
+ADR;TYPE=WORK:;;Chicago Office;;;;
+URL:https://sterlingcross.law/attorney-john-doe.html
+END:VCARD

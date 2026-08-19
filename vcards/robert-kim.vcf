@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Kim;Robert;;;
+FN:Robert Kim
+ORG:Sterling & Cross
+TITLE:Associate, Criminal Defense & White Collar
+TEL;TYPE=WORK,VOICE:(202) 555-0194
+EMAIL:r.kim@sterlingcross.law
+ADR;TYPE=WORK:;;Washington DC Office;;;;
+URL:https://sterlingcross.law/attorney-robert-kim.html
+END:VCARD

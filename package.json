@@ -1,0 +1,16 @@
+{
+  "name": "lawyer-site-legal-plans",
+  "version": "1.0.0",
+  "description": "A 62 page international law firm website built with Tailwind CSS via CDN, Font Awesome, GSAP, and Globe.gl, no build step required. Every page is a plain static HTML file, open any of them directly or serve the folder with any static host.",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

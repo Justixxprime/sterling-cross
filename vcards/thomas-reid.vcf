@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Reid;Thomas;;;
+FN:Thomas Reid
+ORG:Sterling & Cross
+TITLE:Associate, Employment
+TEL;TYPE=WORK,VOICE:(312) 555-0189
+EMAIL:t.reid@sterlingcross.law
+ADR;TYPE=WORK:;;Chicago Office;;;;
+URL:https://sterlingcross.law/attorney-thomas-reid.html
+END:VCARD
