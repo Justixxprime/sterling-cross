@@ -547,6 +547,23 @@ document.addEventListener('DOMContentLoaded', () => {
     dobYear.addEventListener('change', () => { clampDobDay(); syncDobCombined(); });
   }
 
+  // ---- phone number, a country-code <select> plus a plain digits
+  // input, combined into a single E.164 string (e.g. +13125550142)
+  // in the hidden #phone field, since that's the format Forminit's
+  // phone block validates against. ----
+  const phoneCountry = document.querySelector('[data-phone-country]');
+  const phoneNumber = document.querySelector('[data-phone-number]');
+  const phoneCombined = document.getElementById('phone');
+  function syncPhoneCombined() {
+    if (!phoneCombined) return;
+    const digits = phoneNumber.value.replace(/[^\d]/g, '');
+    phoneCombined.value = digits ? `${phoneCountry.value}${digits}` : '';
+  }
+  if (phoneCountry && phoneNumber) {
+    phoneCountry.addEventListener('change', syncPhoneCombined);
+    phoneNumber.addEventListener('input', syncPhoneCombined);
+  }
+
 
   const appForm = document.getElementById('applicationForm');
 

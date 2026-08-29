@@ -121,6 +121,20 @@
     wrap.appendChild(select);
     select.classList.add('sr-only-select');
 
+    // the visible trigger lives in `wrap`, not the now-hidden `select`,
+    // so any width/flex-sizing utility classes on the original select
+    // (e.g. a select meant to sit narrow next to another field, like a
+    // country-code picker beside a phone number input) need to carry
+    // over to `wrap`, otherwise they're applied to an invisible element
+    // and the visible trigger just falls back to filling all available
+    // space, everything else (border, padding, text color, etc.) can
+    // stay on the hidden select since only `wrap` and `.custom-select-
+    // trigger` are ever actually rendered
+    const sizingClass = /^(w-|shrink-|flex-shrink-|flex-grow-|grow-|basis-|min-w-|max-w-)/;
+    select.className.split(/\s+/).forEach((cls) => {
+      if (sizingClass.test(cls)) wrap.classList.add(cls);
+    });
+
     renderOptions();
     updateTrigger();
   }

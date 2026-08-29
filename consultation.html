@@ -459,10 +459,65 @@
 <label class="block text-sm font-bold mb-1.5">Email</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" id="email" name="fi-sender-email" required="" type="email"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Phone number</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" id="phone" name="fi-sender-phone" required="" type="tel"/>
+<label class="block text-sm font-bold mb-1.5">Phone number</label>
+<input id="phone" name="fi-sender-phone" type="hidden"/>
+<div class="flex gap-2">
+<select class="w-28 shrink-0 border border-ink/15 rounded-lg px-2 py-3 text-sm" data-phone-country="" required="">
+<option value="+1">US +1</option>
+<option value="+1">CA +1</option>
+<option value="+52">MX +52</option>
+<option value="+44">UK +44</option>
+<option value="+353">IE +353</option>
+<option value="+33">FR +33</option>
+<option value="+49">DE +49</option>
+<option value="+34">ES +34</option>
+<option value="+39">IT +39</option>
+<option value="+31">NL +31</option>
+<option value="+32">BE +32</option>
+<option value="+41">CH +41</option>
+<option value="+43">AT +43</option>
+<option value="+46">SE +46</option>
+<option value="+47">NO +47</option>
+<option value="+45">DK +45</option>
+<option value="+358">FI +358</option>
+<option value="+351">PT +351</option>
+<option value="+30">GR +30</option>
+<option value="+48">PL +48</option>
+<option value="+420">CZ +420</option>
+<option value="+971">AE +971</option>
+<option value="+966">SA +966</option>
+<option value="+974">QA +974</option>
+<option value="+972">IL +972</option>
+<option value="+90">TR +90</option>
+<option value="+20">EG +20</option>
+<option value="+27">ZA +27</option>
+<option value="+234">NG +234</option>
+<option value="+254">KE +254</option>
+<option value="+91">IN +91</option>
+<option value="+86">CN +86</option>
+<option value="+81">JP +81</option>
+<option value="+82">KR +82</option>
+<option value="+65">SG +65</option>
+<option value="+852">HK +852</option>
+<option value="+886">TW +886</option>
+<option value="+66">TH +66</option>
+<option value="+84">VN +84</option>
+<option value="+63">PH +63</option>
+<option value="+62">ID +62</option>
+<option value="+60">MY +60</option>
+<option value="+61">AU +61</option>
+<option value="+64">NZ +64</option>
+<option value="+55">BR +55</option>
+<option value="+54">AR +54</option>
+<option value="+56">CL +56</option>
+<option value="+57">CO +57</option>
+<option value="+51">PE +51</option>
+</select>
+<input class="flex-1 min-w-0 border border-ink/15 rounded-lg px-4 py-3" data-phone-number="" placeholder="312 555 0142" required="" type="tel"/>
+</div>
 </div>
 <div class="sm:col-span-2">
-<label class="block text-sm font-bold mb-1.5">Current city and state</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-location" placeholder="Chicago, Illinois" required="" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Current city and state</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-sender-city" placeholder="Chicago, Illinois" required="" type="text"/>
 </div>
 </div>
 <button class="btn-magnetic w-full bg-ink text-paper font-bold py-3.5 rounded-full" data-next="" type="button">
@@ -536,6 +591,30 @@
 <option>Afternoon</option>
 <option>Evening</option>
 </select>
+</div>
+<div class="grid sm:grid-cols-2 gap-4 mb-6">
+<div>
+<label class="block text-sm font-bold mb-1.5">Preferred language for your call</label>
+<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-select-preferredLanguage" required="">
+<option value="">-- Select one --</option>
+<option>English</option>
+<option>Spanish</option>
+<option>French</option>
+<option>Mandarin</option>
+<option>Portuguese</option>
+<option>Arabic</option>
+<option>Other</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-bold mb-1.5">Have you already spoken with another attorney about this matter</label>
+<div class="flex gap-4 text-sm items-center mt-3">
+<label class="flex items-center gap-2"><input name="fi-radio-priorAttorney" required="" type="radio" value="Yes"/>
+                  Yes</label>
+<label class="flex items-center gap-2"><input name="fi-radio-priorAttorney" required="" type="radio" value="No"/>
+                  No</label>
+</div>
+</div>
 </div>
 <div class="mb-6">
 <p class="flex items-center gap-2 font-bold mb-1.5"><i class="fa-solid fa-file-arrow-up text-emerald"></i> Upload Documents (Optional)</p>
