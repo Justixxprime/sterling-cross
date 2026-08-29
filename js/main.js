@@ -679,11 +679,29 @@ document.addEventListener('DOMContentLoaded', () => {
           if (field.type === 'radio') {
             if (seenRadioGroups.has(field.name)) continue;
             seenRadioGroups.add(field.name);
-            const group = activePanel.querySelectorAll(`input[type="radio"][name="${field.name}"]`);
-            const isEmpty = ![...group].some(r => r.checked);
-            const wrap = field.closest('.flex') || field.closest('div');
-            wrap?.classList.toggle('field-invalid-group', isEmpty);
-            if (isEmpty && !firstInvalid) firstInvalid = field;
+            const group = [...activePanel.querySelectorAll(`input[type="radio"][name="${field.name}"]`)];
+            const isEmpty = !group.some(r => r.checked);
+            // a plan-style radio group can be spread across several visual
+            // cards/sections, so every option in the group needs the invalid
+            // highlight, not just whichever one happened to be first in the
+            // markup, otherwise most of the group looks perfectly fine
+            group.forEach(r => {
+              const card = r.closest('.plan-option-card') || r.closest('label');
+              card?.classList.toggle('field-invalid-group', isEmpty);
+            });
+            if (isEmpty && !firstInvalid) {
+              // prefer whichever option in the group is already on screen,
+              // so submitting from the bottom of a long list (e.g. "Not sure
+              // yet" at the end of the plan options) doesn't yank the page
+              // back up to the very first option and make it look like the
+              // button silently did nothing, only fall back to the first
+              // option in the group if none of them are currently visible
+              const visible = group.find(r => {
+                const rect = r.getBoundingClientRect();
+                return rect.top >= 0 && rect.bottom <= window.innerHeight;
+              });
+              firstInvalid = visible || field;
+            }
             continue;
           }
           // checkboxes report a truthy .value ("on") even when unchecked,
@@ -695,8 +713,10 @@ document.addEventListener('DOMContentLoaded', () => {
           if (isEmpty && !firstInvalid) firstInvalid = visibleTarget || field;
         }
         if (firstInvalid) {
-          firstInvalid.focus();
-          firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const rect = firstInvalid.getBoundingClientRect();
+          const alreadyInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+          if (!alreadyInView) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstInvalid.focus({ preventScroll: true });
           let msg = activePanel.querySelector('.step-validation-msg');
           if (!msg) {
             msg = document.createElement('p');

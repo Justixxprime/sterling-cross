@@ -1686,7 +1686,7 @@ form textarea { resize: vertical; }
 /* Field validation error states */
 @keyframes fieldShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
 .field-invalid { border-color: #C0392B !important; background: rgba(192,57,43,0.04); animation: fieldShake .35s ease; }
-.field-invalid-group { animation: fieldShake .35s ease; padding: 8px; margin: -8px; border-radius: 10px; background: rgba(192,57,43,0.06); box-shadow: inset 0 0 0 1.5px #C0392B; }
+.field-invalid-group { animation: fieldShake .35s ease; border-radius: 10px; background: rgba(192,57,43,0.06); box-shadow: 0 0 0 1.5px #C0392B; }
 label:has(> .field-invalid), .field-invalid + label { color: #C0392B; }
 .step-validation-msg { color: #C0392B; font-weight: 800; font-size: .82rem; margin-top: 10px; display: flex; align-items: center; gap: 6px; }
 .step-validation-msg::before { content: '\f06a'; font-family: 'Font Awesome 6 Free'; font-weight: 900; }
