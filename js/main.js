@@ -161,7 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         matches = SEARCH_INDEX.filter(item => {
           const haystack = (item.title + ' ' + item.category + ' ' + (item.keywords || '')).toLowerCase();
-          return haystack.includes(q);
+          const words = q.split(/\s+/).filter(Boolean);
+          return words.every(w => haystack.includes(w));
         }).slice(0, 10);
       }
       activeIndex = -1;
@@ -520,6 +521,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const dobMonth = document.querySelector('[data-dob-month]');
   const dobDay = document.querySelector('[data-dob-day]');
   const dobYear = document.querySelector('[data-dob-year]');
+  const dobCombined = document.getElementById('dobCombined');
+  function syncDobCombined() {
+    if (!dobCombined) return;
+    const m = parseInt(dobMonth.value, 10);
+    const d = parseInt(dobDay.value, 10);
+    const y = parseInt(dobYear.value, 10);
+    dobCombined.value = (m && d && y)
+      ? `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+      : '';
+  }
   if (dobMonth && dobDay && dobYear) {
     function clampDobDay() {
       const month = parseInt(dobMonth.value, 10);
@@ -531,8 +542,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       if (parseInt(dobDay.value, 10) > daysInMonth) dobDay.value = '';
     }
-    dobMonth.addEventListener('change', clampDobDay);
-    dobYear.addEventListener('change', clampDobDay);
+    dobMonth.addEventListener('change', () => { clampDobDay(); syncDobCombined(); });
+    dobDay.addEventListener('change', syncDobCombined);
+    dobYear.addEventListener('change', () => { clampDobDay(); syncDobCombined(); });
   }
 
 
@@ -611,7 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    const stepNames = ['plan', 'details', 'matter', 'background', 'references', 'additional', 'confirm', 'payment'];
+    const stepNames = ['plan', 'details', 'needs', 'confirm'];
     let current = 0;
     const dots = stepNames.map(s => document.getElementById(`dot-${s}`));
     const lines = document.querySelectorAll('.step-line');
@@ -712,9 +724,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (current < stepNames.length - 1) {
           current++;
-          // filling the review summary happens the moment we arrive at
-          // the confirm step, not on the last step, since payment now
-          // comes after confirm
+          // filling the review summary and payment preview both happen
+          // the moment we arrive at the final combined confirm/payment step
           if (stepNames[current] === 'confirm') {
             const summaryFields = ['fullName', 'email', 'phone', 'matterType', 'matterDetails'];
             summaryFields.forEach(id => {
@@ -722,12 +733,9 @@ document.addEventListener('DOMContentLoaded', () => {
               const target = document.getElementById(`summary-${id}`);
               if (input && target) target.textContent = input.value || 'Not provided';
             });
-            const planRadio = appForm.querySelector('input[name="selected_plan"]:checked');
+            const planRadio = appForm.querySelector('input[name="fi-radio-selectedPlan"]:checked');
             const planTarget = document.getElementById('summary-selectedPlan');
             if (planTarget) planTarget.textContent = planRadio ? planRadio.value : 'Not selected';
-          }
-          if (stepNames[current] === 'payment') {
-            const planRadio = appForm.querySelector('input[name="selected_plan"]:checked');
             const priceMatch = planRadio && planRadio.value.match(/\$[\d.]+(\/mo| one-time)?/);
             const amountEl = document.getElementById('paymentAmountDisplay');
             const labelEl = document.getElementById('paymentAmountLabel');
@@ -748,24 +756,26 @@ document.addEventListener('DOMContentLoaded', () => {
     appForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const statusBox = document.getElementById('applicationStatus');
-      if (!appForm.action || appForm.action.includes('YOUR_BASIN_FORM_ID')) {
-        statusBox.textContent = 'This form needs a free Basin form endpoint before it can send. Create one at usebasin.com and paste it into the form action.';
+      const formId = appForm.dataset.forminitFormId;
+      if (!formId || formId === 'YOUR_FORMINIT_FORM_ID') {
+        statusBox.textContent = 'This form needs a free Forminit form ID before it can send. Create one at forminit.com and paste it into data-forminit-form-id.';
+        statusBox.className = 'mt-4 text-sm font-bold text-red-600';
+        return;
+      }
+      if (typeof Forminit === 'undefined') {
+        statusBox.textContent = 'Could not reach the server. Please email us directly instead.';
         statusBox.className = 'mt-4 text-sm font-bold text-red-600';
         return;
       }
       const submitBtn = appForm.querySelector('[type="submit"]');
       if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
       try {
-        const res = await fetch(appForm.action, {
-          method: 'POST',
-          // Do NOT set Content-Type here: the browser needs to add its own
-          // multipart/form-data boundary. Sending FormData directly (instead
-          // of JSON.stringify-ing it) is what lets the uploaded files above
-          // actually reach the form backend instead of being silently dropped.
-          headers: { Accept: 'application/json' },
-          body: new FormData(appForm),
-        });
-        if (res.ok) {
+        const forminit = new Forminit();
+        // Sending FormData (not JSON) is what lets the uploaded files
+        // above actually reach Forminit instead of being silently dropped,
+        // JSON submissions to Forminit cannot include file uploads.
+        const { error } = await forminit.submit(formId, new FormData(appForm));
+        if (!error) {
           // hide every step panel and show the success panel instead,
           // no payment is charged here, the actual value of this step
           // is that the full questionnaire (including any uploaded photos)
@@ -775,14 +785,14 @@ document.addEventListener('DOMContentLoaded', () => {
           if (successPanel) successPanel.classList.add('active');
           fireConfetti();
         } else {
-          statusBox.textContent = 'Something went wrong sending that. Please email us directly instead.';
+          statusBox.textContent = error.message || 'Something went wrong sending that. Please email us directly instead.';
           statusBox.className = 'mt-4 text-sm font-bold text-red-600';
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Make Payment'; }
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Activate Membership'; }
         }
       } catch (err) {
         statusBox.textContent = "Could not reach the server. Please email us directly instead.";
         statusBox.className = 'mt-4 text-sm font-bold text-red-600';
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Make Payment'; }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Activate Membership'; }
       }
     });
   }

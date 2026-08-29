@@ -162,7 +162,7 @@ def build_pdf(title, category, author_name, author_title, blocks, pull_quote, ou
 
 TITLE = "Understanding Corporate Compliance, A Guide for Business Owners"
 CATEGORY = "Corporate Law"
-AUTHOR_NAME = "John Doe"
+AUTHOR_NAME = "Charles Antoni Wojcik"
 AUTHOR_TITLE = "Senior Partner, Sterling & Cross"
 PULL_QUOTE = "Fixing it later always costs more than preventing it would have."   # or set to None
 

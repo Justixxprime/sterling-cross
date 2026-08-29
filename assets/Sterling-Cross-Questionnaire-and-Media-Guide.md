@@ -145,7 +145,7 @@ Every `class="..."` you see (like `class="w-full border border-ink/15 rounded-lg
 ### About (about.html) — images 23–28
 23. **Page hero banner** — your flagship office's exterior or lobby, this is the page's "who we are" opening shot
 24. **Firm office photo** — a second interior shot, different room than #23 (e.g. a conference room)
-25. **Attorney headshot** (labeled "John Doe" placeholder) — real headshot #1, studio-consistent
+25. **Attorney headshot** (labeled "Charles Antoni Wojcik" placeholder) — real headshot #1, studio-consistent
 26. **Attorney headshot** ("Jane Smith" placeholder) — real headshot #2, same studio setup as #25
 27. **Attorney headshot** ("Michael Brown" placeholder) — real headshot #3
 28. **Attorney headshot** ("Emily Johnson" placeholder) — real headshot #4
