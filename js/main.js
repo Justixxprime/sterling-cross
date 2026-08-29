@@ -623,7 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    const stepNames = ['plan', 'details', 'needs', 'confirm'];
+    const stepNames = ['plan', 'details', 'needs', 'confirm', 'payment'];
     let current = 0;
     const dots = stepNames.map(s => document.getElementById(`dot-${s}`));
     const lines = document.querySelectorAll('.step-line');
@@ -724,8 +724,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (current < stepNames.length - 1) {
           current++;
-          // filling the review summary and payment preview both happen
-          // the moment we arrive at the final combined confirm/payment step
+          // review summary fills the moment we arrive at the confirm
+          // step, payment amount fills separately once we reach payment
           if (stepNames[current] === 'confirm') {
             const summaryFields = ['fullName', 'email', 'phone', 'matterType', 'matterDetails'];
             summaryFields.forEach(id => {
@@ -736,6 +736,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const planRadio = appForm.querySelector('input[name="fi-radio-selectedPlan"]:checked');
             const planTarget = document.getElementById('summary-selectedPlan');
             if (planTarget) planTarget.textContent = planRadio ? planRadio.value : 'Not selected';
+          }
+          if (stepNames[current] === 'payment') {
+            const planRadio = appForm.querySelector('input[name="fi-radio-selectedPlan"]:checked');
             const priceMatch = planRadio && planRadio.value.match(/\$[\d.]+(\/mo| one-time)?/);
             const amountEl = document.getElementById('paymentAmountDisplay');
             const labelEl = document.getElementById('paymentAmountLabel');
