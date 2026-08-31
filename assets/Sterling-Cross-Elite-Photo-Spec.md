@@ -16,7 +16,7 @@ You're not sourcing generic "law firm stock photos" — you're building the visu
 8. **Decorative attorney portrait.** Reuse one of your real 14 headshots once shot — don't source a separate "generic" one; consistency compounds trust.
 9. **Decorative office interior.** Reuse a real interior from the Locations set (#79–92) rather than a separate stock shot.
 10. **Senior/founding partner portrait (700×900, tall).** This is your most consequential single photograph. Formal three-quarter length, arms uncrossed, standing near a window or bookshelf, natural authority rather than a stiff corporate pose — this is the "Chambers Global Band 1" photo.
-11. **.** A trading floor mid-session, motion-blurred in the background, one sharp foreground element (a terminal, a hand on a phone).
+11. **Corporate & M&A.** A trading floor mid-session, motion-blurred in the background, one sharp foreground element (a terminal, a hand on a phone).
 12. **Litigation & arbitration.** An empty, grand courtroom or federal courthouse rotunda — scale and gravity, no people needed.
 13. **Private equity.** A closing-table moment: pens on a signature page, out-of-focus hands, warm desk-lamp light.
 14. **Restructuring.** Similar financial register to #13 but cooler, more clinical light — this practice is about control amid distress, the lighting should feel tenser.
