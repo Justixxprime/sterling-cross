@@ -564,6 +564,18 @@ document.addEventListener('DOMContentLoaded', () => {
     phoneNumber.addEventListener('input', syncPhoneCombined);
   }
 
+  // Real Estate & Landlord-Tenant applicants get a few extra tenancy
+  // questions, everyone else doesn't see them, keeps the form lean for
+  // the other 11 matter types while still capturing the detail a
+  // landlord-tenant matter actually needs
+  const matterTypeSelect = document.getElementById('matterType');
+  const tenantSection = document.getElementById('tenantMatterSection');
+  if (matterTypeSelect && tenantSection) {
+    matterTypeSelect.addEventListener('change', () => {
+      tenantSection.classList.toggle('hidden', matterTypeSelect.value !== 'Real Estate & Landlord-Tenant');
+    });
+  }
+
 
   const appForm = document.getElementById('applicationForm');
 

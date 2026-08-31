@@ -37,6 +37,7 @@ const SEARCH_INDEX = [
   { title: "Family Law", url: "practice-areas.html#family", category: "Practice Area", icon: "fa-people-roof", keywords: "divorce custody" },
   { title: "Estate Planning", url: "practice-areas.html#estate", category: "Practice Area", icon: "fa-file-signature", keywords: "wills trusts" },
   { title: "Government Benefits & Disability", url: "practice-areas.html#benefits", category: "Practice Area", icon: "fa-hand-holding-heart", keywords: "social security ssdi ssi va veterans disability medicaid snap unemployment" },
+  { title: "Landlord-Tenant", url: "practice-areas.html#landlord-tenant", category: "Practice Area", icon: "fa-house-chimney", keywords: "apartment rental renting lease tenant eviction security deposit landlord housing" },
   { title: "Probate & Estate Administration", url: "practice-areas.html#probate", category: "Practice Area", icon: "fa-scroll", keywords: "will contest executor administrator intestate" },
   { title: "Personal Injury", url: "practice-areas.html#personal-injury", category: "Practice Area", icon: "fa-user-injured", keywords: "accident negligence car crash injury claim" },
   { title: "Wrongful Death", url: "practice-areas.html#wrongful-death", category: "Practice Area", icon: "fa-dove", keywords: "fatal accident survival action next of kin" },
