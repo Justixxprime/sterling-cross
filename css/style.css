@@ -1496,8 +1496,10 @@ form textarea { resize: vertical; }
 .flip-front-info .flip-title { font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #B8873B; margin-top: 2px; }
 .flip-flag { position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 50%; background: rgba(248,245,239,0.15); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; color: #F8F5EF; font-size: .7rem; }
 .flip-back { transform: rotateY(180deg); background: #161410; color: #F8F5EF; padding: 22px; display: flex; flex-direction: column; }
+.flip-back::before { content: '\f10d'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 44px; right: 20px; font-size: 3rem; color: rgba(184,135,59,0.1); z-index: 0; }
+.flip-back > * { position: relative; z-index: 1; }
 .flip-back .flip-back-chair { color: #B8873B; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
-.flip-back .flip-back-bio { font-size: .78rem; line-height: 1.5; color: rgba(248,245,239,0.68); flex: 1; overflow: hidden; }
+.flip-back .flip-back-bio { font-size: .78rem; line-height: 1.5; color: rgba(248,245,239,0.68); flex: 1; overflow: hidden; display: flex; align-items: center; }
 .flip-back .flip-tags { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0; }
 .flip-back .flip-tags span { font-size: .62rem; font-weight: 700; background: rgba(248,245,239,0.1); padding: 3px 9px; border-radius: 999px; }
 .flip-back .flip-view-link { font-size: .78rem; font-weight: 800; color: #F8F5EF; display: flex; align-items: center; gap: 6px; }
