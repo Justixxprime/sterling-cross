@@ -133,6 +133,35 @@ noscript ~ .reveal { opacity: 1 !important; transform: none !important; }
 /* ---------- buttons ---------- */
 .btn-magnetic { transition: transform .3s cubic-bezier(.34,1.56,.64,1); will-change: transform; }
 
+/* Premium final-step CTA, "Activate Membership": gold gradient + shine
+   sweep matching the site's existing tur-cta treatment, plus a soft
+   breathing glow so it reads as the one obvious next step on the page. */
+.btn-activate {
+  position: relative; overflow: hidden;
+  background: linear-gradient(100deg, #E4B15D 0%, #B8873B 55%, #9C7233 100%);
+  color: #161410; font-weight: 800; letter-spacing: .01em;
+  box-shadow: 0 10px 24px -10px rgba(184,135,59,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset;
+  transition: transform .35s cubic-bezier(.19,1,.22,1), box-shadow .35s ease;
+  animation: activateGlow 2.8s ease-in-out infinite;
+}
+.btn-activate::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.6) 50%, transparent 70%);
+  transform: translateX(-130%); transition: transform .7s ease;
+}
+.btn-activate:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -10px rgba(184,135,59,0.7), 0 0 0 1px rgba(255,255,255,0.12) inset; }
+.btn-activate:hover::before { transform: translateX(130%); }
+.btn-activate:active { transform: translateY(-1px) scale(0.98); }
+.btn-activate i { transition: transform .3s ease; }
+.btn-activate:hover i { transform: scale(1.15) rotate(-6deg); }
+@keyframes activateGlow {
+  0%, 100% { box-shadow: 0 10px 24px -10px rgba(184,135,59,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset; }
+  50% { box-shadow: 0 10px 30px -8px rgba(184,135,59,0.8), 0 0 0 1px rgba(255,255,255,0.08) inset; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-activate { animation: none; }
+}
+
 /* ---------- tilt + spotlight cards, deeper effect, plus a tap equivalent for touch screens ---------- */
 .tilt-card { position: relative; overflow: hidden; transition: transform .35s cubic-bezier(.19,1,.22,1), box-shadow .35s ease; }
 .tilt-card::before {
@@ -1066,8 +1095,8 @@ button:not(.sidebar-link):hover i {
 .video-play-btn::before { content: ''; position: absolute; inset: -14px; border-radius: 9999px; border: 2px solid rgba(248,245,239,0.5); animation: callPulse 2.4s ease-out infinite; }
 #videoModal { position: fixed; inset: 0; z-index: 250; background: rgba(9,12,10,0.92); display: none; align-items: center; justify-content: center; padding: 24px; }
 #videoModal.open { display: flex; }
-#videoModal .video-modal-inner { width: 100%; max-width: 1000px; aspect-ratio: 16/9; background: #000; border-radius: 16px; overflow: hidden; position: relative; }
-#videoModal video { width: 100%; height: 100%; object-fit: cover; }
+#videoModal .video-modal-inner { max-width: 95vw; max-height: 85vh; background: #000; border-radius: 16px; overflow: hidden; position: relative; display: flex; }
+#videoModal video { max-width: 95vw; max-height: 85vh; width: auto; height: auto; object-fit: contain; }
 #videoModalClose { position: absolute; top: -50px; right: 0; color: #F8F5EF; font-size: 1.6rem; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 9999px; background: rgba(248,245,239,0.1); }
 
 /* ---------- data-viz bars, animated width on reveal, used for
