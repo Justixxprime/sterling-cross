@@ -273,8 +273,8 @@
 <div class="step-line"></div>
 <div class="step-dot flex-shrink-0" id="dot-payment">5</div>
 </div>
-<form data-forminit-form-id="cp37u8les03" enctype="multipart/form-data" id="applicationForm" method="POST">
-<input name="fi-text-subject" type="hidden" value="New Legal Plan application, Sterling and Cross"/>
+<form data-endpoint-url="https://script.google.com/macros/s/AKfycbzb0xxoSE1KrFN6FDmxjs8lf2db8QNe1ZmZSbxpInHd1KQbBMckenSWElXzp2BukhTZXg/exec" enctype="multipart/form-data" id="applicationForm" method="POST">
+<input name="subject" type="hidden" value="New Legal Plan application, Sterling and Cross"/>
 <!-- STEP 0: CHOOSE YOUR PLAN -->
 
 <div class="step-panel active" id="panel-plan">
@@ -286,7 +286,7 @@
 <p class="font-extrabold text-xs uppercase tracking-widest text-ink/60 mb-3 mt-2">Personal</p>
 <div class="space-y-3 mb-6">
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Individual Plan, $65/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Individual Plan, $65/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Individual</span>
@@ -296,7 +296,7 @@
 </span>
 </label>
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Individual Plus Plan, $89/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Individual Plus Plan, $89/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Individual Plus</span>
@@ -311,7 +311,7 @@
 <div class="space-y-3 mb-6">
 <label class="plan-option-card flex items-start gap-4 border-2 border-gold bg-gold/5 rounded-2xl p-5 cursor-pointer relative">
 <span class="absolute -top-3 right-5 bg-gold text-ink text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full">Most Popular</span>
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Family Plan, $129/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Family Plan, $129/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Family</span>
@@ -321,7 +321,7 @@
 </span>
 </label>
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Family Plus Plan, $169/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Family Plus Plan, $169/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Family Plus</span>
@@ -335,7 +335,7 @@
 <p class="font-extrabold text-xs uppercase tracking-widest text-ink/60 mb-3">Specialized</p>
 <div class="space-y-3 mb-6">
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Student and Young Professional Plan, $35/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Student and Young Professional Plan, $35/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Student &amp; Young Professional</span>
@@ -345,7 +345,7 @@
 </span>
 </label>
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Senior and Retiree Plan, $59/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Senior and Retiree Plan, $59/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Senior &amp; Retiree</span>
@@ -355,7 +355,7 @@
 </span>
 </label>
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Landlord and Real Estate Investor Plan, $119/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Landlord and Real Estate Investor Plan, $119/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Landlord &amp; Real Estate Investor</span>
@@ -365,7 +365,7 @@
 </span>
 </label>
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Gig Worker and Rideshare Plan, $45/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Gig Worker and Rideshare Plan, $45/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Gig Worker &amp; Rideshare</span>
@@ -379,7 +379,7 @@
 <p class="font-extrabold text-xs uppercase tracking-widest text-ink/60 mb-3">Business &amp; Organizations</p>
 <div class="space-y-3 mb-6">
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Small Business Starter Plan, $149/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Small Business Starter Plan, $149/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Small Business Starter</span>
@@ -389,7 +389,7 @@
 </span>
 </label>
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Small Business Pro Plan, $299/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Small Business Pro Plan, $299/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Small Business Pro</span>
@@ -399,7 +399,7 @@
 </span>
 </label>
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Nonprofit and Community Org Plan, $99/mo"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Nonprofit and Community Org Plan, $99/mo"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Nonprofit &amp; Community Org</span>
@@ -413,7 +413,7 @@
 <p class="font-extrabold text-xs uppercase tracking-widest text-ink/60 mb-3">Still deciding</p>
 <div class="space-y-3 mb-6">
 <label class="plan-option-card flex items-start gap-4 border-2 border-ink/10 rounded-2xl p-5 cursor-pointer">
-<input class="mt-1.5" name="fi-radio-selectedPlan" required="" type="radio" value="Not sure yet, $20 one-time guidance fee"/>
+<input class="mt-1.5" name="selectedPlan" required="" type="radio" value="Not sure yet, $20 one-time guidance fee"/>
 <span class="flex-1">
 <span class="flex items-center justify-between gap-3">
 <span class="font-display font-extrabold text-lg">Not sure yet</span>
@@ -427,9 +427,9 @@
 <div class="mb-6">
 <label class="block text-sm font-bold mb-1.5">Billing preference</label>
 <div class="flex gap-4 text-sm">
-<label class="flex items-center gap-2"><input name="fi-radio-billingCycle" required="" type="radio" value="Monthly"/>
+<label class="flex items-center gap-2"><input name="billingCycle" required="" type="radio" value="Monthly"/>
                   Monthly</label>
-<label class="flex items-center gap-2"><input name="fi-radio-billingCycle" required="" type="radio" value="Annual (save 15%)"/>
+<label class="flex items-center gap-2"><input name="billingCycle" required="" type="radio" value="Annual (save 15%)"/>
                   Annual, save 15%</label>
 </div>
 </div>
@@ -444,11 +444,11 @@
             </h2>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
 <div>
-<label class="block text-sm font-bold mb-1.5">Full legal name</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" id="fullName" name="fi-sender-fullName" required="" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Full legal name</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" id="fullName" name="fullName" required="" type="text"/>
 </div>
 <div>
 <label class="block text-sm font-bold mb-1.5">Date of birth</label>
-<input id="dobCombined" name="fi-date-dateOfBirth" type="hidden"/>
+<input id="dobCombined" name="dateOfBirth" type="hidden"/>
 <div class="grid grid-cols-3 gap-2">
 <select class="w-full border border-ink/15 rounded-lg px-3 py-3 text-sm" data-dob-month="" required=""><option value="">Month</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
 <select class="w-full border border-ink/15 rounded-lg px-3 py-3 text-sm" data-dob-day="" required=""><option value="">Day</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select>
@@ -456,11 +456,11 @@
 </div>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Email</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" id="email" name="fi-sender-email" required="" type="email"/>
+<label class="block text-sm font-bold mb-1.5">Email</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" id="email" name="email" required="" type="email"/>
 </div>
 <div>
 <label class="block text-sm font-bold mb-1.5">Phone number</label>
-<input id="phone" name="fi-sender-phone" type="hidden"/>
+<input id="phone" name="phone" type="hidden"/>
 <div class="flex gap-2">
 <select class="w-28 shrink-0 border border-ink/15 rounded-lg px-2 py-3 text-sm" data-phone-country="" required="">
 <option value="+1">US +1</option>
@@ -517,7 +517,7 @@
 </div>
 </div>
 <div class="sm:col-span-2">
-<label class="block text-sm font-bold mb-1.5">Current city and state</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-sender-city" placeholder="Chicago, Illinois" required="" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Current city and state</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="city" placeholder="Chicago, Illinois" required="" type="text"/>
 </div>
 </div>
 <button class="btn-magnetic w-full bg-ink text-paper font-bold py-3.5 rounded-full" data-next="" type="button">
@@ -532,7 +532,7 @@
             </h2>
 <div class="mb-4">
 <label class="block text-sm font-bold mb-1.5">Primary reason for applying</label>
-<select class="w-full border border-ink/15 rounded-xl px-4 py-3" id="matterType" name="fi-select-matterType" required="">
+<select class="w-full border border-ink/15 rounded-xl px-4 py-3" id="matterType" name="matterType" required="">
 <option value="">-- Select one --</option>
 <option>General advice and questions, no specific issue yet</option>
 <option>Wills, Trusts &amp; Estate Planning</option>
@@ -549,11 +549,11 @@
 </select>
 </div>
 <div class="mb-4">
-<label class="block text-sm font-bold mb-1.5">Briefly describe your situation</label><textarea class="w-full border border-ink/15 rounded-lg px-4 py-3" id="matterDetails" name="fi-text-matterDetails" required="" rows="4"></textarea>
+<label class="block text-sm font-bold mb-1.5">Briefly describe your situation</label><textarea class="w-full border border-ink/15 rounded-lg px-4 py-3" id="matterDetails" name="matterDetails" required="" rows="4"></textarea>
 </div>
 <div class="mb-4">
 <label class="block text-sm font-bold mb-1.5">How soon would you like your welcome call</label>
-<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-select-urgency" required="">
+<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="urgency" required="">
 <option value="">-- Select one --</option>
 <option>As soon as possible, this is time-sensitive</option>
 <option>Within the next week or two</option>
@@ -561,7 +561,7 @@
 </select>
 </div>
 <div class="mb-4">
-<label class="block text-sm font-bold mb-1.5">Is there an opposing party involved in your current situation</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-opposingParty" placeholder="Name, or leave blank if none" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Is there an opposing party involved in your current situation</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="opposingParty" placeholder="Name, or leave blank if none" type="text"/>
 </div>
 <div class="mb-6 bg-mist rounded-xl p-4">
 <label class="flex items-start gap-3 cursor-pointer">
@@ -579,33 +579,33 @@
 <p class="text-xs font-bold uppercase tracking-widest text-ink/40 mb-3">This Rental</p>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
 <div class="sm:col-span-2">
-<label class="block text-sm font-bold mb-1.5">Address of the property (renting, applying for, or taking over)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-rentalAddress" placeholder="Street, city, state, ZIP" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Address of the property (renting, applying for, or taking over)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="rentalAddress" placeholder="Street, city, state, ZIP" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Monthly rent (current or offered on the listing)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-monthlyRent" placeholder="$" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Monthly rent (current or offered on the listing)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="monthlyRent" placeholder="$" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Exact or desired move-in date</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-moveInDate" placeholder="MM/DD/YYYY" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Exact or desired move-in date</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="moveInDate" placeholder="MM/DD/YYYY" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Desired length of occupancy</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-lengthOfOccupancy" placeholder="e.g. 12 months" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Desired length of occupancy</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="lengthOfOccupancy" placeholder="e.g. 12 months" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">How much can you put down to secure the property today</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-secureToday" placeholder="$" type="text"/>
+<label class="block text-sm font-bold mb-1.5">How much can you put down to secure the property today</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="secureToday" placeholder="$" type="text"/>
 </div>
 <div>
 <label class="block text-sm font-bold mb-1.5">Are you taking over a lease already in progress</label>
-<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-select-leaseTakeover">
+<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="leaseTakeover">
 <option value="">-- Select one --</option>
 <option>Yes</option>
 <option>No</option>
 </select>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Security deposit paid (if already a tenant)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-securityDeposit" placeholder="$" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Security deposit paid (if already a tenant)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="securityDeposit" placeholder="$" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">How many months rent can you pay upfront</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-monthsUpfront" type="text"/>
+<label class="block text-sm font-bold mb-1.5">How many months rent can you pay upfront</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="monthsUpfront" type="text"/>
 </div>
 </div>
 
@@ -613,101 +613,101 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
 <div>
 <label class="block text-sm font-bold mb-1.5">Is there another applicant on the lease who is 18 or older</label>
-<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-select-otherApplicant18">
+<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="otherApplicant18">
 <option value="">-- Select one --</option>
 <option>Yes</option>
 <option>No</option>
 </select>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Do you have any pets</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-pets" placeholder="If so, what kind" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Do you have any pets</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="pets" placeholder="If so, what kind" type="text"/>
 </div>
 <div class="sm:col-span-2">
-<label class="block text-sm font-bold mb-1.5">Full names and ages of other occupants (if any)</label><textarea class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-otherOccupants" rows="2"></textarea>
+<label class="block text-sm font-bold mb-1.5">Full names and ages of other occupants (if any)</label><textarea class="w-full border border-ink/15 rounded-lg px-4 py-3" name="otherOccupants" rows="2"></textarea>
 </div>
 <div class="sm:col-span-2">
-<label class="block text-sm font-bold mb-1.5">Occupation of each adult (if any)</label><textarea class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-occupations" rows="2"></textarea>
+<label class="block text-sm font-bold mb-1.5">Occupation of each adult (if any)</label><textarea class="w-full border border-ink/15 rounded-lg px-4 py-3" name="occupations" rows="2"></textarea>
 </div>
 </div>
 
 <p class="text-xs font-bold uppercase tracking-widest text-ink/40 mb-3">Employment</p>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
 <div>
-<label class="block text-sm font-bold mb-1.5">Employer name (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-employerName" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Employer name (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="employerName" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Employer's EIN (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-employerEin" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Employer's EIN (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="employerEin" type="text"/>
 </div>
 </div>
 
 <p class="text-xs font-bold uppercase tracking-widest text-ink/40 mb-3">Current Residence</p>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
 <div>
-<label class="block text-sm font-bold mb-1.5">How long at your present address</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-timeAtAddress" type="text"/>
+<label class="block text-sm font-bold mb-1.5">How long at your present address</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="timeAtAddress" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Current monthly rent</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-currentRent" placeholder="$" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Current monthly rent</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="currentRent" placeholder="$" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Current landlord or property manager, first name</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-landlordFirstName" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Current landlord or property manager, first name</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="landlordFirstName" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Current landlord or property manager, last name</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-landlordLastName" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Current landlord or property manager, last name</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="landlordLastName" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Current landlord or property manager's phone</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-landlordPhone" type="tel"/>
+<label class="block text-sm font-bold mb-1.5">Current landlord or property manager's phone</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="landlordPhone" type="tel"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">How often do you clean</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-cleaningHabits" type="text"/>
+<label class="block text-sm font-bold mb-1.5">How often do you clean</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="cleaningHabits" type="text"/>
 </div>
 </div>
 
 <p class="text-xs font-bold uppercase tracking-widest text-ink/40 mb-3">Additional Information</p>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
 <div>
-<label class="block text-sm font-bold mb-1.5">Reason for moving</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-reasonForMoving" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Reason for moving</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="reasonForMoving" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Anything in your background you'd like to explain (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-backgroundNote" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Anything in your background you'd like to explain (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="backgroundNote" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Give us any reason to trust you (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-trustNote" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Give us any reason to trust you (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="trustNote" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Have you received any eviction or other legal notice about this tenancy (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-noticesReceived" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Have you received any eviction or other legal notice about this tenancy (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="noticesReceived" type="text"/>
 </div>
 </div>
 
 <p class="text-xs font-bold uppercase tracking-widest text-ink/40 mb-3">First Reference</p>
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-ref1FirstName" placeholder="First name" type="text"/>
-<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-ref1LastName" placeholder="Last name" type="text"/>
-<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-ref1Phone" placeholder="Phone" type="tel"/>
-<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-ref1Relationship" placeholder="Relationship" type="text"/>
+<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="ref1FirstName" placeholder="First name" type="text"/>
+<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="ref1LastName" placeholder="Last name" type="text"/>
+<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="ref1Phone" placeholder="Phone" type="tel"/>
+<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="ref1Relationship" placeholder="Relationship" type="text"/>
 </div>
 
 <p class="text-xs font-bold uppercase tracking-widest text-ink/40 mb-3">Second Reference</p>
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-ref2FirstName" placeholder="First name" type="text"/>
-<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-ref2LastName" placeholder="Last name" type="text"/>
-<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-ref2Phone" placeholder="Phone" type="tel"/>
-<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-ref2Relationship" placeholder="Relationship" type="text"/>
+<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="ref2FirstName" placeholder="First name" type="text"/>
+<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="ref2LastName" placeholder="Last name" type="text"/>
+<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="ref2Phone" placeholder="Phone" type="tel"/>
+<input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="ref2Relationship" placeholder="Relationship" type="text"/>
 </div>
 </div>
 <div class="mb-4">
 <label class="block text-sm font-bold mb-1.5">Preferred contact method for your welcome call</label>
 <div class="flex gap-4 text-sm">
-<label class="flex items-center gap-2"><input name="fi-radio-contactMethod" required="" type="radio" value="Phone"/>
+<label class="flex items-center gap-2"><input name="contactMethod" required="" type="radio" value="Phone"/>
                   Phone</label>
-<label class="flex items-center gap-2"><input name="fi-radio-contactMethod" required="" type="radio" value="Email"/>
+<label class="flex items-center gap-2"><input name="contactMethod" required="" type="radio" value="Email"/>
                   Email</label>
-<label class="flex items-center gap-2"><input name="fi-radio-contactMethod" required="" type="radio" value="Text"/>
+<label class="flex items-center gap-2"><input name="contactMethod" required="" type="radio" value="Text"/>
                   Text</label>
 </div>
 </div>
 <div class="mb-6">
 <label class="block text-sm font-bold mb-1.5">Best time to reach you</label>
-<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-select-bestTime" required="">
+<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="bestTime" required="">
 <option value="">-- Select one --</option>
 <option>Morning</option>
 <option>Afternoon</option>
@@ -717,7 +717,7 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
 <div>
 <label class="block text-sm font-bold mb-1.5">Preferred language for your call</label>
-<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-select-preferredLanguage" required="">
+<select class="w-full border border-ink/15 rounded-lg px-4 py-3" name="preferredLanguage" required="">
 <option value="">-- Select one --</option>
 <option>English</option>
 <option>Spanish</option>
@@ -731,22 +731,22 @@
 <div>
 <label class="block text-sm font-bold mb-1.5">Have you already spoken with another attorney about this matter</label>
 <div class="flex gap-4 text-sm items-center mt-3">
-<label class="flex items-center gap-2"><input name="fi-radio-priorAttorney" required="" type="radio" value="Yes"/>
+<label class="flex items-center gap-2"><input name="priorAttorney" required="" type="radio" value="Yes"/>
                   Yes</label>
-<label class="flex items-center gap-2"><input name="fi-radio-priorAttorney" required="" type="radio" value="No"/>
+<label class="flex items-center gap-2"><input name="priorAttorney" required="" type="radio" value="No"/>
                   No</label>
 </div>
 </div>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
 <div>
-<label class="block text-sm font-bold mb-1.5">Nil Nil Ni</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-placeholder1" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Nil Nil Ni</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="placeholder1" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Nil Nil Ni</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-placeholder2" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Nil Nil Ni</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="placeholder2" type="text"/>
 </div>
 <div class="sm:col-span-2">
-<label class="block text-sm font-bold mb-1.5">Nil Nil Ni</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-placeholder3" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Nil Nil Ni</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="placeholder3" type="text"/>
 </div>
 </div>
 <div class="mb-6">
@@ -760,7 +760,7 @@
 <p class="upload-dropzone-hint">Click to upload</p>
 <span class="upload-status-pill" data-status="pending">Pending</span>
 </label>
-<input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_1" name="fi-file-document1" type="file"/>
+<input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_1" name="document1" type="file"/>
 <p class="text-xs text-ink/40 mt-2 text-center">JPG, PNG, PDF (Max 10MB)</p>
 </div>
 <div class="upload-card" data-slot="2">
@@ -770,7 +770,7 @@
 <p class="upload-dropzone-hint">Click to upload</p>
 <span class="upload-status-pill" data-status="pending">Pending</span>
 </label>
-<input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_2" name="fi-file-document2" type="file"/>
+<input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_2" name="document2" type="file"/>
 <p class="text-xs text-ink/40 mt-2 text-center">JPG, PNG, PDF (Max 10MB)</p>
 </div>
 <div class="upload-card" data-slot="3">
@@ -780,7 +780,7 @@
 <p class="upload-dropzone-hint">Click to upload</p>
 <span class="upload-status-pill" data-status="pending">Pending</span>
 </label>
-<input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_3" name="fi-file-document3" type="file"/>
+<input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_3" name="document3" type="file"/>
 <p class="text-xs text-ink/40 mt-2 text-center">JPG, PNG, PDF (Max 10MB)</p>
 </div>
 </div>
@@ -828,14 +828,14 @@
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
 <div>
-<label class="block text-sm font-bold mb-1.5">Promo or referral code (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-promoCode" placeholder="If you have one" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Promo or referral code (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="promoCode" placeholder="If you have one" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Anything else we should know (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-additionalComments" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Anything else we should know (optional)</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="additionalComments" type="text"/>
 </div>
 </div>
 <div class="mb-6">
-<label class="block text-sm font-bold mb-1.5">Type your full name as your signature</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="fi-text-signature" required="" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Type your full name as your signature</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="signature" required="" type="text"/>
 </div>
 <label class="flex items-start gap-3 mb-6 text-sm text-ink/60">
 <input class="mt-1" required="" type="checkbox"/>
@@ -864,7 +864,7 @@
 <!--
   DESIGN PREVIEW ONLY, not a real payment form.
   These card fields are intentionally missing "name" attributes so
-  they can never be included in this form's submission to Forminit,
+  they can never be included in this form's submission to the backend,
   a plain form submission is not a secure or PCI-compliant way to
   collect real card numbers. This block exists purely to show the
   client what the checkout step will look like. When real billing is
@@ -1084,7 +1084,6 @@
 <script defer="" src="js/search-index.js"></script>
 <script defer="" src="js/sidebar-init.js"></script>
 <script src="js/custom-select.js"></script>
-<script src="https://forminit.com/sdk/v1/forminit.js"></script>
 <script defer="" src="js/main.js"></script>
 <!--Start of Tawk.to Script-->
 <script type="text/javascript">

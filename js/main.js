@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---- phone number, a country-code <select> plus a plain digits
   // input, combined into a single E.164 string (e.g. +13125550142)
-  // in the hidden #phone field, since that's the format Forminit's
+  // in the hidden #phone field, a clean, unambiguous format regardless
   // phone block validates against. ----
   const phoneCountry = document.querySelector('[data-phone-country]');
   const phoneNumber = document.querySelector('[data-phone-number]');
@@ -808,39 +808,37 @@ document.addEventListener('DOMContentLoaded', () => {
     appForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const statusBox = document.getElementById('applicationStatus');
-      const formId = appForm.dataset.forminitFormId;
-      if (!formId || formId === 'YOUR_FORMINIT_FORM_ID') {
-        statusBox.textContent = 'This form needs a free Forminit form ID before it can send. Create one at forminit.com and paste it into data-forminit-form-id.';
-        statusBox.className = 'mt-4 text-sm font-bold text-red-600';
-        return;
-      }
-      if (typeof Forminit === 'undefined') {
-        statusBox.textContent = 'Could not reach the server. Please email us directly instead.';
+      const endpointUrl = appForm.dataset.endpointUrl;
+      if (!endpointUrl || endpointUrl === 'YOUR_GOOGLE_SCRIPT_URL') {
+        statusBox.textContent = 'This form needs its Google Apps Script URL set up first. See How-To-Set-Up-Google-Backend.md, then paste the URL into data-endpoint-url.';
         statusBox.className = 'mt-4 text-sm font-bold text-red-600';
         return;
       }
       const submitBtn = appForm.querySelector('[type="submit"]');
       if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
       try {
-        const forminit = new Forminit();
-        // Sending FormData (not JSON) is what lets the uploaded files
-        // above actually reach Forminit instead of being silently dropped,
-        // JSON submissions to Forminit cannot include file uploads.
-        const { error } = await forminit.submit(formId, new FormData(appForm));
-        if (!error) {
-          // hide every step panel and show the success panel instead,
-          // no payment is charged here, the actual value of this step
-          // is that the full questionnaire (including any uploaded photos)
-          // has just been sent to our team
-          panels.forEach(p => p.classList.remove('active'));
-          document.getElementById('stepIndicator')?.classList.add('hidden');
-          if (successPanel) successPanel.classList.add('active');
-          fireConfetti();
-        } else {
-          statusBox.textContent = error.message || 'Something went wrong sending that. Please email us directly instead.';
-          statusBox.className = 'mt-4 text-sm font-bold text-red-600';
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Activate Membership'; }
-        }
+        // mode:'no-cors' is required here, Apps Script Web Apps don't send
+        // back CORS headers, so the browser won't let us read the response
+        // body either way, this just means we can't distinguish "it worked"
+        // from "the server sent back an error" from the response itself,
+        // only from whether the request failed to send at all (network
+        // error, DNS failure, wrong URL, that kind of thing). Sending
+        // FormData (not JSON) is what lets the uploaded files above
+        // actually reach the backend as real files instead of being
+        // silently dropped, Apps Script receives them as Blobs.
+        await fetch(endpointUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: new FormData(appForm),
+        });
+        // hide every step panel and show the success panel instead,
+        // no payment is charged here, the actual value of this step
+        // is that the full questionnaire (including any uploaded photos)
+        // has just been sent to our team
+        panels.forEach(p => p.classList.remove('active'));
+        document.getElementById('stepIndicator')?.classList.add('hidden');
+        if (successPanel) successPanel.classList.add('active');
+        fireConfetti();
       } catch (err) {
         statusBox.textContent = "Could not reach the server. Please email us directly instead.";
         statusBox.className = 'mt-4 text-sm font-bold text-red-600';

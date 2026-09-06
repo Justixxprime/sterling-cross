@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="noindex, nofollow" name="robots"/>
+<title>Applications Dashboard — Sterling &amp; Cross</title>
+<link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<style>
+:root {
+  --paper: #F8F5EF; --ink: #161410; --gold: #B8873B; --navy: #0E1B2B;
+  --emerald: #123A5C; --mist: #EFEAE0; --steel: #4A5A6B; --red: #C0392B;
+  --green: #1F7A4D;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "Manrope", "Segoe UI", sans-serif; background: var(--paper); color: var(--ink); }
+h1, h2, h3 { font-family: "Bricolage Grotesque", -apple-system, sans-serif; margin: 0; }
+a { color: inherit; }
+
+/* ---------- Login gate ---------- */
+#loginScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--navy); padding: 24px; }
+.login-card { background: var(--paper); border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5); }
+.login-card .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.login-card .logo i { color: var(--gold); font-size: 22px; }
+.login-card .logo span { font-weight: 800; font-size: 18px; }
+.login-card label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+.login-card input { width: 100%; padding: 12px 14px; border: 1.5px solid rgba(22,20,16,0.15); border-radius: 10px; font-size: 14px; margin-bottom: 16px; font-family: inherit; }
+.login-card input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,135,59,0.15); }
+.login-card button { width: 100%; padding: 13px; border: none; border-radius: 10px; background: linear-gradient(100deg, #E4B15D, #B8873B 55%, #9C7233); color: var(--ink); font-weight: 800; font-size: 14px; cursor: pointer; }
+.login-card p.hint { font-size: 12px; color: var(--steel); margin-top: 16px; line-height: 1.5; }
+.login-error { color: var(--red); font-size: 13px; font-weight: 700; margin: -8px 0 16px; display: none; }
+
+/* ---------- Shell ---------- */
+#dashboard { display: none; }
+#dashboard.visible { display: block; }
+header.topbar { background: var(--navy); color: var(--paper); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+header.topbar .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+header.topbar .brand i { color: var(--gold); }
+header.topbar .actions { display: flex; align-items: center; gap: 12px; }
+.btn { border: none; border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.btn-gold { background: var(--gold); color: var(--ink); }
+.btn-ghost { background: rgba(248,245,239,0.1); color: var(--paper); }
+.btn-ghost:hover { background: rgba(248,245,239,0.18); }
+main { max-width: 1320px; margin: 0 auto; padding: 28px; }
+
+/* ---------- Stats ---------- */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: #fff; border-radius: 16px; padding: 20px; border: 1px solid rgba(22,20,16,0.06); }
+.stat-card .stat-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--steel); margin-bottom: 8px; }
+.stat-card .stat-value { font-size: 30px; font-weight: 800; font-family: "Bricolage Grotesque", sans-serif; }
+.stat-card .stat-sub { font-size: 12px; color: var(--steel); margin-top: 4px; }
+.stat-card.accent { background: linear-gradient(135deg, var(--navy), #16283e); color: var(--paper); }
+.stat-card.accent .stat-label { color: rgba(248,245,239,0.6); }
+
+.panels-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 24px; }
+@media (max-width: 900px) { .panels-grid { grid-template-columns: 1fr; } }
+.panel { background: #fff; border-radius: 16px; padding: 22px; border: 1px solid rgba(22,20,16,0.06); }
+.panel h3 { font-size: 15px; margin-bottom: 16px; }
+.breakdown-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; }
+.breakdown-row .label { width: 150px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.breakdown-row .bar-track { flex: 1; height: 8px; background: var(--mist); border-radius: 4px; overflow: hidden; }
+.breakdown-row .bar-fill { height: 100%; background: var(--gold); border-radius: 4px; }
+.breakdown-row .count { width: 28px; text-align: right; font-weight: 700; flex-shrink: 0; }
+
+/* ---------- Table ---------- */
+.table-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.table-toolbar input, .table-toolbar select { padding: 9px 12px; border: 1.5px solid rgba(22,20,16,0.12); border-radius: 9px; font-size: 13px; font-family: inherit; background: #fff; }
+.table-toolbar input { flex: 1; min-width: 200px; }
+.table-wrap { background: #fff; border-radius: 16px; border: 1px solid rgba(22,20,16,0.06); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { text-align: left; padding: 12px 16px; background: var(--mist); font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--steel); cursor: pointer; user-select: none; white-space: nowrap; }
+thead th:hover { color: var(--ink); }
+tbody tr { border-top: 1px solid rgba(22,20,16,0.06); cursor: pointer; transition: background .15s ease; }
+tbody tr:hover { background: rgba(184,135,59,0.06); }
+tbody td { padding: 12px 16px; white-space: nowrap; }
+.status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+.status-New { background: rgba(184,135,59,0.15); color: #8a6428; }
+.status-Contacted { background: rgba(18,58,92,0.12); color: var(--emerald); }
+.status-Enrolled { background: rgba(31,122,77,0.15); color: var(--green); }
+.status-Declined { background: rgba(192,57,43,0.12); color: var(--red); }
+.empty-state { padding: 60px 20px; text-align: center; color: var(--steel); }
+.empty-state i { font-size: 32px; margin-bottom: 12px; opacity: .4; }
+
+/* ---------- Detail slide-over ---------- */
+#overlay { position: fixed; inset: 0; background: rgba(14,27,43,0.55); z-index: 90; display: none; }
+#overlay.open { display: block; }
+#detailPanel { position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 100vw); background: var(--paper); z-index: 100; transform: translateX(100%); transition: transform .35s cubic-bezier(.19,1,.22,1); overflow-y: auto; box-shadow: -20px 0 50px rgba(0,0,0,0.2); }
+#detailPanel.open { transform: translateX(0); }
+.detail-header { background: var(--navy); color: var(--paper); padding: 24px 28px; position: sticky; top: 0; z-index: 5; }
+.detail-header .top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.detail-header h2 { font-size: 20px; }
+.detail-header .close-btn { background: rgba(248,245,239,0.12); border: none; color: var(--paper); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 14px; }
+.detail-header select.status-select { padding: 8px 12px; border-radius: 8px; border: none; font-weight: 700; font-size: 13px; }
+.detail-actions { display: flex; gap: 8px; margin-top: 14px; }
+.detail-body { padding: 24px 28px 60px; }
+.detail-section { margin-bottom: 26px; }
+.detail-section h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--steel); font-weight: 800; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--mist); }
+.field-row { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; font-size: 13.5px; border-bottom: 1px dashed rgba(22,20,16,0.08); }
+.field-row .k { color: var(--steel); flex-shrink: 0; }
+.field-row .v { text-align: right; font-weight: 600; word-break: break-word; }
+.file-card { display: flex; align-items: center; gap: 12px; padding: 12px; background: #fff; border: 1px solid rgba(22,20,16,0.08); border-radius: 12px; margin-bottom: 10px; }
+.file-card i { font-size: 20px; color: var(--gold); width: 24px; text-align: center; }
+.file-card .name { flex: 1; font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-card a { font-size: 12px; font-weight: 800; color: var(--emerald); text-decoration: none; }
+.no-data { color: var(--steel); font-style: italic; font-size: 13px; }
+
+/* ---------- Print (PDF export) ---------- */
+@media print {
+  body * { visibility: hidden; }
+  #detailPanel, #detailPanel * { visibility: visible; }
+  #detailPanel { position: absolute; inset: 0; width: 100%; box-shadow: none; transform: none; }
+  .detail-header .close-btn, .detail-actions, .status-select { display: none !important; }
+  .detail-header { background: #fff !important; color: var(--ink) !important; position: static; }
+  .submitted-date { color: var(--steel) !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+<div class="login-card">
+<div class="logo"><i class="fa-solid fa-scale-balanced"></i><span>Sterling &amp; Cross</span></div>
+<h1 style="font-size:18px;margin-bottom:4px;">Applications Dashboard</h1>
+<p style="font-size:13px;color:var(--steel);margin:0 0 24px;">Sign in with your dashboard credentials.</p>
+<p class="login-error" id="loginError">That doesn't look right. Double-check both fields and try again.</p>
+<label for="endpointInput">Backend URL</label>
+<input id="endpointInput" placeholder="https://script.google.com/macros/s/.../exec" type="text"/>
+<label for="secretInput">Dashboard password</label>
+<input id="secretInput" placeholder="The ADMIN_SECRET from Code.gs" type="password"/>
+<button id="loginBtn" type="button">Sign In</button>
+<p class="hint">Both values come from your Google Apps Script setup, see <strong>How-To-Set-Up-Google-Backend.md</strong>. This stays saved in this browser only, nothing is sent anywhere else.</p>
+</div>
+</div>
+
+<div id="dashboard">
+<header class="topbar">
+<div class="brand"><i class="fa-solid fa-scale-balanced"></i> Applications Dashboard</div>
+<div class="actions">
+<button class="btn btn-ghost" id="refreshBtn" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button>
+<button class="btn btn-ghost" id="logoutBtn" type="button"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+</div>
+</header>
+
+<main>
+<div class="stats-grid" id="statsGrid"></div>
+
+<div class="panels-grid">
+<div class="panel">
+<h3>Applications Over Time</h3>
+<canvas height="90" id="timeChart"></canvas>
+</div>
+<div class="panel">
+<h3>By Plan</h3>
+<div id="planBreakdown"></div>
+</div>
+</div>
+
+<div class="panels-grid">
+<div class="panel">
+<h3>By Matter Type</h3>
+<div id="matterBreakdown"></div>
+</div>
+<div class="panel">
+<h3>Pipeline Status</h3>
+<div id="statusBreakdown"></div>
+</div>
+</div>
+
+<div class="table-toolbar">
+<input id="searchInput" placeholder="Search by name, email, or phone…" type="text"/>
+<select id="statusFilter">
+<option value="">All statuses</option>
+<option value="New">New</option>
+<option value="Contacted">Contacted</option>
+<option value="Enrolled">Enrolled</option>
+<option value="Declined">Declined</option>
+</select>
+<select id="planFilter"><option value="">All plans</option></select>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th data-sort="Status">Status</th>
+<th data-sort="fullName">Name</th>
+<th data-sort="selectedPlan">Plan</th>
+<th data-sort="matterType">Matter Type</th>
+<th data-sort="Timestamp">Submitted</th>
+<th data-sort="email">Email</th>
+<th data-sort="phone">Phone</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+<div class="empty-state" id="emptyState" style="display:none;">
+<i class="fa-solid fa-inbox"></i>
+<p>No applications match your filters yet.</p>
+</div>
+</div>
+</main>
+</div>
+
+<div id="overlay"></div>
+<div id="detailPanel"></div>
+
+<script>
+const LS_ENDPOINT = 'sc_dashboard_endpoint';
+const LS_SECRET = 'sc_dashboard_secret';
+
+let allRows = [];
+let sortKey = 'Timestamp';
+let sortDir = 'desc';
+let timeChartInstance = null;
+
+const FIELD_GROUPS = [
+  { title: 'Plan', fields: [['selectedPlan','Plan selected'],['billingCycle','Billing cycle']] },
+  { title: 'Applicant', fields: [['fullName','Full name'],['dateOfBirth','Date of birth'],['email','Email'],['phone','Phone'],['city','City / state']] },
+  { title: 'Legal Needs', fields: [['matterType','Matter type'],['matterDetails','Details'],['urgency','Urgency'],['opposingParty','Opposing party'],['contactMethod','Preferred contact'],['bestTime','Best time'],['preferredLanguage','Preferred language'],['priorAttorney','Spoke with another attorney']] },
+  { title: 'Tenancy (if applicable)', fields: [['rentalAddress','Property address'],['monthlyRent','Monthly rent'],['moveInDate','Move-in date'],['lengthOfOccupancy','Length of occupancy'],['secureToday','Can secure today'],['leaseTakeover','Taking over lease'],['securityDeposit','Security deposit'],['monthsUpfront','Months upfront'],['otherApplicant18','Other applicant 18+'],['pets','Pets'],['otherOccupants','Other occupants'],['occupations','Occupations'],['employerName','Employer'],['employerEin','Employer EIN'],['timeAtAddress','Time at address'],['currentRent','Current rent'],['landlordFirstName','Landlord first name'],['landlordLastName','Landlord last name'],['landlordPhone','Landlord phone'],['cleaningHabits','Cleaning habits'],['reasonForMoving','Reason for moving'],['backgroundNote','Background note'],['trustNote','Trust note'],['noticesReceived','Notices received']] },
+  { title: 'References', fields: [['ref1FirstName','Reference 1 — First'],['ref1LastName','Reference 1 — Last'],['ref1Phone','Reference 1 — Phone'],['ref1Relationship','Reference 1 — Relationship'],['ref2FirstName','Reference 2 — First'],['ref2LastName','Reference 2 — Last'],['ref2Phone','Reference 2 — Phone'],['ref2Relationship','Reference 2 — Relationship']] },
+  { title: 'Additional', fields: [['promoCode','Promo code'],['additionalComments','Additional comments'],['signature','Signature']] },
+];
+const FILE_FIELDS = ['document1', 'document2', 'document3'];
+
+function driveIdFromUrl(url) {
+  const m = String(url || '').match(/\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+function fmtDate(v) {
+  if (!v) return '—';
+  const d = new Date(v);
+  if (isNaN(d)) return String(v);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + ' · ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
+
+// ---------- Login ----------
+function tryLogin(endpoint, secret, showError) {
+  return fetch(`${endpoint}?secret=${encodeURIComponent(secret)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        localStorage.setItem(LS_ENDPOINT, endpoint);
+        localStorage.setItem(LS_SECRET, secret);
+        allRows = data.rows || [];
+        showDashboard();
+      } else if (showError) {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    })
+    .catch(() => { if (showError) document.getElementById('loginError').style.display = 'block'; });
+}
+
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const endpoint = document.getElementById('endpointInput').value.trim();
+  const secret = document.getElementById('secretInput').value.trim();
+  document.getElementById('loginError').style.display = 'none';
+  if (!endpoint || !secret) return;
+  tryLogin(endpoint, secret, true);
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem(LS_ENDPOINT);
+  localStorage.removeItem(LS_SECRET);
+  location.reload();
+});
+
+document.getElementById('refreshBtn').addEventListener('click', () => loadData());
+
+// on load, try saved credentials automatically
+(function initialLoad() {
+  const savedEndpoint = localStorage.getItem(LS_ENDPOINT);
+  const savedSecret = localStorage.getItem(LS_SECRET);
+  if (savedEndpoint && savedSecret) {
+    tryLogin(savedEndpoint, savedSecret, false);
+  }
+})();
+
+function showDashboard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').classList.add('visible');
+  render();
+}
+
+function loadData() {
+  const endpoint = localStorage.getItem(LS_ENDPOINT);
+  const secret = localStorage.getItem(LS_SECRET);
+  if (!endpoint || !secret) return;
+  fetch(`${endpoint}?secret=${encodeURIComponent(secret)}`)
+    .then(r => r.json())
+    .then(data => { if (data.success) { allRows = data.rows || []; render(); } });
+}
+
+// ---------- Render ----------
+function render() {
+  renderStats();
+  renderCharts();
+  renderPlanFilterOptions();
+  renderTable();
+}
+
+function renderStats() {
+  const total = allRows.length;
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const newThisWeek = allRows.filter(r => new Date(r.Timestamp).getTime() > weekAgo).length;
+  const enrolled = allRows.filter(r => r.Status === 'Enrolled').length;
+  const conversionRate = total ? Math.round((enrolled / total) * 100) : 0;
+  const newCount = allRows.filter(r => r.Status === 'New').length;
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card accent">
+      <div class="stat-label">Total Applications</div>
+      <div class="stat-value">${total}</div>
+      <div class="stat-sub">All time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">New This Week</div>
+      <div class="stat-value">${newThisWeek}</div>
+      <div class="stat-sub">Last 7 days</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Awaiting Follow-Up</div>
+      <div class="stat-value">${newCount}</div>
+      <div class="stat-sub">Status: New</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Conversion Rate</div>
+      <div class="stat-value">${conversionRate}%</div>
+      <div class="stat-sub">${enrolled} enrolled of ${total}</div>
+    </div>
+  `;
+}
+
+function groupCount(field) {
+  const counts = {};
+  allRows.forEach(r => {
+    const v = (r[field] || 'Not specified').toString();
+    counts[v] = (counts[v] || 0) + 1;
+  });
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+}
+
+function renderBreakdown(elId, field, colorVar) {
+  const counts = groupCount(field);
+  const max = Math.max(1, ...counts.map(c => c[1]));
+  const el = document.getElementById(elId);
+  if (!counts.length) { el.innerHTML = '<p class="no-data">No data yet.</p>'; return; }
+  el.innerHTML = counts.map(([label, count]) => `
+    <div class="breakdown-row">
+      <div class="label" title="${label}">${label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(count/max)*100}%"></div></div>
+      <div class="count">${count}</div>
+    </div>
+  `).join('');
+}
+
+function renderCharts() {
+  renderBreakdown('planBreakdown', 'selectedPlan');
+  renderBreakdown('matterBreakdown', 'matterType');
+  renderBreakdown('statusBreakdown', 'Status');
+
+  // applications per day, last 14 days
+  const days = [];
+  const counts = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    days.push(key);
+    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const dayEnd = dayStart + 24 * 60 * 60 * 1000;
+    counts.push(allRows.filter(r => {
+      const t = new Date(r.Timestamp).getTime();
+      return t >= dayStart && t < dayEnd;
+    }).length);
+  }
+
+  const ctx = document.getElementById('timeChart').getContext('2d');
+  if (typeof Chart === 'undefined') {
+    // Chart.js failed to load (CDN hiccup, ad blocker, offline), the rest
+    // of the dashboard, stats, table, filters, all still fully work
+    // without it, so this degrades gracefully instead of taking
+    // everything else down with it
+    document.getElementById('timeChart').replaceWith(
+      Object.assign(document.createElement('p'), { className: 'no-data', textContent: 'Chart could not load, everything else on this page still works normally.' })
+    );
+    return;
+  }
+  if (timeChartInstance) timeChartInstance.destroy();
+  timeChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [{
+        data: counts,
+        borderColor: '#B8873B',
+        backgroundColor: 'rgba(184,135,59,0.12)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 3,
+        pointBackgroundColor: '#B8873B',
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } }
+    }
+  });
+}
+
+function renderPlanFilterOptions() {
+  const sel = document.getElementById('planFilter');
+  const current = sel.value;
+  const plans = [...new Set(allRows.map(r => r.selectedPlan).filter(Boolean))];
+  sel.innerHTML = '<option value="">All plans</option>' + plans.map(p => `<option value="${p}">${p}</option>`).join('');
+  sel.value = current;
+}
+
+function getFilteredSortedRows() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const statusFilter = document.getElementById('statusFilter').value;
+  const planFilter = document.getElementById('planFilter').value;
+
+  let rows = allRows.filter(r => {
+    if (statusFilter && r.Status !== statusFilter) return false;
+    if (planFilter && r.selectedPlan !== planFilter) return false;
+    if (search) {
+      const hay = `${r.fullName || ''} ${r.email || ''} ${r.phone || ''}`.toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  rows.sort((a, b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (sortKey === 'Timestamp') { av = new Date(av).getTime() || 0; bv = new Date(bv).getTime() || 0; }
+    else { av = (av || '').toString().toLowerCase(); bv = (bv || '').toString().toLowerCase(); }
+    if (av < bv) return sortDir === 'asc' ? -1 : 1;
+    if (av > bv) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  return rows;
+}
+
+function renderTable() {
+  const rows = getFilteredSortedRows();
+  const tbody = document.getElementById('tableBody');
+  document.getElementById('emptyState').style.display = rows.length ? 'none' : 'block';
+  tbody.innerHTML = rows.map(r => `
+    <tr onclick="openDetail(${r._row})">
+      <td><span class="status-badge status-${r.Status || 'New'}">${r.Status || 'New'}</span></td>
+      <td>${r.fullName || '—'}</td>
+      <td>${r.selectedPlan || '—'}</td>
+      <td>${r.matterType || '—'}</td>
+      <td>${fmtDate(r.Timestamp)}</td>
+      <td>${r.email || '—'}</td>
+      <td>${r.phone || '—'}</td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input', renderTable);
+document.getElementById('statusFilter').addEventListener('change', renderTable);
+document.getElementById('planFilter').addEventListener('change', renderTable);
+document.querySelectorAll('thead th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    if (sortKey === key) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+    else { sortKey = key; sortDir = 'desc'; }
+    renderTable();
+  });
+});
+
+// ---------- Detail panel ----------
+function openDetail(rowNum) {
+  const r = allRows.find(row => row._row === rowNum);
+  if (!r) return;
+
+  const sections = FIELD_GROUPS.map(group => {
+    const rowsHtml = group.fields
+      .filter(([key]) => r[key] !== undefined && r[key] !== '')
+      .map(([key, label]) => `<div class="field-row"><span class="k">${label}</span><span class="v">${r[key]}</span></div>`)
+      .join('');
+    if (!rowsHtml) return '';
+    return `<div class="detail-section"><h4>${group.title}</h4>${rowsHtml}</div>`;
+  }).join('');
+
+  const files = FILE_FIELDS.filter(f => r[f]).map(f => {
+    const id = driveIdFromUrl(r[f]);
+    const previewUrl = id ? `https://drive.google.com/file/d/${id}/preview` : r[f];
+    return `<div class="file-card"><i class="fa-solid fa-file"></i><span class="name">${f}</span><a href="${previewUrl}" target="_blank" rel="noopener">View / Download</a></div>`;
+  }).join('') || '<p class="no-data">No documents uploaded.</p>';
+
+  document.getElementById('detailPanel').innerHTML = `
+    <div class="detail-header">
+      <div class="top-row">
+        <div>
+          <h2>${r.fullName || 'Applicant'}</h2>
+          <div class="submitted-date" style="font-size:12px;color:rgba(248,245,239,0.65);margin-top:4px;">Submitted ${fmtDate(r.Timestamp)}</div>
+        </div>
+        <button class="close-btn" onclick="closeDetail()" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <select class="status-select" id="statusSelect" onchange="updateStatus(${r._row}, this.value)">
+        ${['New','Contacted','Enrolled','Declined'].map(s => `<option value="${s}" ${r.Status === s ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+      <div class="detail-actions">
+        <button class="btn btn-gold" onclick="window.print()" type="button"><i class="fa-solid fa-file-pdf"></i> Download as PDF</button>
+      </div>
+    </div>
+    <div class="detail-body">
+      ${sections}
+      <div class="detail-section">
+        <h4>Uploaded Documents</h4>
+        ${files}
+      </div>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('detailPanel').classList.remove('open');
+}
+document.getElementById('overlay').addEventListener('click', closeDetail);
+
+function updateStatus(rowNum, newStatus) {
+  const endpoint = localStorage.getItem(LS_ENDPOINT);
+  const secret = localStorage.getItem(LS_SECRET);
+  const row = allRows.find(r => r._row === rowNum);
+  if (row) row.Status = newStatus; // optimistic update
+  renderTable();
+  renderStats();
+  renderBreakdown('statusBreakdown', 'Status');
+
+  const body = new FormData();
+  body.append('action', 'updateStatus');
+  body.append('secret', secret);
+  body.append('row', rowNum);
+  body.append('status', newStatus);
+  fetch(endpoint, { method: 'POST', mode: 'no-cors', body });
+}
+</script>
+</body>
+</html>
