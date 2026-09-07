@@ -123,14 +123,28 @@ tbody td { padding: 12px 16px; white-space: nowrap; }
 <div class="login-card">
 <div class="logo"><i class="fa-solid fa-scale-balanced"></i><span>Sterling &amp; Cross</span></div>
 <h1 style="font-size:18px;margin-bottom:4px;">Applications Dashboard</h1>
-<p style="font-size:13px;color:var(--steel);margin:0 0 24px;">Sign in with your dashboard credentials.</p>
-<p class="login-error" id="loginError">That doesn't look right. Double-check both fields and try again.</p>
-<label for="endpointInput">Backend URL</label>
-<input id="endpointInput" placeholder="https://script.google.com/macros/s/.../exec" type="text"/>
-<label for="secretInput">Dashboard password</label>
-<input id="secretInput" placeholder="The ADMIN_SECRET from Code.gs" type="password"/>
+<p style="font-size:13px;color:var(--steel);margin:0 0 24px;">Enter your dashboard password to continue.</p>
+<p class="login-error" id="loginError">That password doesn't look right, try again.</p>
+<label for="secretInput">Password</label>
+<input id="secretInput" placeholder="Your dashboard password" type="password"/>
 <button id="loginBtn" type="button">Sign In</button>
-<p class="hint">Both values come from your Google Apps Script setup, see <strong>How-To-Set-Up-Google-Backend.md</strong>. This stays saved in this browser only, nothing is sent anywhere else.</p>
+<p class="hint">Don't know your password? Open your Google Sheet → Extensions → Apps Script → run <strong>getMyPassword</strong> from the function dropdown, it'll print in the log. See <strong>How-To-Set-Up-Google-Backend.md</strong> for details.</p>
+</div>
+</div>
+
+<div id="settingsOverlay" style="position:fixed;inset:0;background:rgba(14,27,43,0.55);z-index:190;display:none;"></div>
+<div id="settingsModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:200;background:var(--paper);border-radius:18px;padding:32px;width:min(400px,90vw);box-shadow:0 30px 60px -20px rgba(0,0,0,0.4);">
+<h2 style="font-size:17px;margin-bottom:4px;">Change Password</h2>
+<p style="font-size:13px;color:var(--steel);margin:0 0 20px;">You'll need your current password to set a new one.</p>
+<p class="login-error" id="settingsError">Something didn't match, double-check and try again.</p>
+<p id="settingsSuccess" style="display:none;color:var(--green);font-size:13px;font-weight:700;margin:-8px 0 16px;">Password updated. You'll use the new one from now on.</p>
+<label for="currentPasswordInput" style="display:block;font-weight:700;font-size:13px;margin-bottom:6px;">Current password</label>
+<input id="currentPasswordInput" style="width:100%;padding:12px 14px;border:1.5px solid rgba(22,20,16,0.15);border-radius:10px;font-size:14px;margin-bottom:16px;font-family:inherit;" type="password"/>
+<label for="newPasswordInput" style="display:block;font-weight:700;font-size:13px;margin-bottom:6px;">New password (8+ characters)</label>
+<input id="newPasswordInput" style="width:100%;padding:12px 14px;border:1.5px solid rgba(22,20,16,0.15);border-radius:10px;font-size:14px;margin-bottom:20px;font-family:inherit;" type="password"/>
+<div style="display:flex;gap:10px;">
+<button class="btn btn-ghost" id="settingsCancelBtn" style="flex:1;background:rgba(22,20,16,0.08);color:var(--ink);justify-content:center;" type="button">Cancel</button>
+<button class="btn btn-gold" id="settingsSaveBtn" style="flex:1;justify-content:center;" type="button">Save</button>
 </div>
 </div>
 
@@ -139,6 +153,7 @@ tbody td { padding: 12px 16px; white-space: nowrap; }
 <div class="brand"><i class="fa-solid fa-scale-balanced"></i> Applications Dashboard</div>
 <div class="actions">
 <button class="btn btn-ghost" id="refreshBtn" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button>
+<button class="btn btn-ghost" id="settingsBtn" type="button"><i class="fa-solid fa-gear"></i> Settings</button>
 <button class="btn btn-ghost" id="logoutBtn" type="button"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
 </div>
 </header>
@@ -207,7 +222,12 @@ tbody td { padding: 12px 16px; white-space: nowrap; }
 <div id="detailPanel"></div>
 
 <script>
-const LS_ENDPOINT = 'sc_dashboard_endpoint';
+// Your Apps Script Web App URL, set once here, never asked for again
+// on the login screen. If you ever redeploy and get a NEW url (a
+// brand new deployment, not just "New version" on the same one), update
+// it here.
+const DEFAULT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzb0xxoSE1KrFN6FDmxjs8lf2db8QNe1ZmZSbxpInHd1KQbBMckenSWElXzp2BukhTZXg/exec';
+
 const LS_SECRET = 'sc_dashboard_secret';
 
 let allRows = [];
@@ -218,7 +238,7 @@ let timeChartInstance = null;
 const FIELD_GROUPS = [
   { title: 'Plan', fields: [['selectedPlan','Plan selected'],['billingCycle','Billing cycle']] },
   { title: 'Applicant', fields: [['fullName','Full name'],['dateOfBirth','Date of birth'],['email','Email'],['phone','Phone'],['city','City / state']] },
-  { title: 'Legal Needs', fields: [['matterType','Matter type'],['matterDetails','Details'],['urgency','Urgency'],['opposingParty','Opposing party'],['contactMethod','Preferred contact'],['bestTime','Best time'],['preferredLanguage','Preferred language'],['priorAttorney','Spoke with another attorney']] },
+  { title: 'Legal Needs', fields: [['matterType','Matter type'],['matterDetails','Details'],['urgency','Urgency'],['opposingParty','Opposing party'],['contactMethod','Preferred contact'],['bestTime','Best time'],['preferredLanguage','Preferred language'],['priorAttorney','Spoke with another attorney'],['placeholder1','Nil Nil Ni'],['placeholder2','Nil Nil Ni'],['placeholder3','Nil Nil Ni']] },
   { title: 'Tenancy (if applicable)', fields: [['rentalAddress','Property address'],['monthlyRent','Monthly rent'],['moveInDate','Move-in date'],['lengthOfOccupancy','Length of occupancy'],['secureToday','Can secure today'],['leaseTakeover','Taking over lease'],['securityDeposit','Security deposit'],['monthsUpfront','Months upfront'],['otherApplicant18','Other applicant 18+'],['pets','Pets'],['otherOccupants','Other occupants'],['occupations','Occupations'],['employerName','Employer'],['employerEin','Employer EIN'],['timeAtAddress','Time at address'],['currentRent','Current rent'],['landlordFirstName','Landlord first name'],['landlordLastName','Landlord last name'],['landlordPhone','Landlord phone'],['cleaningHabits','Cleaning habits'],['reasonForMoving','Reason for moving'],['backgroundNote','Background note'],['trustNote','Trust note'],['noticesReceived','Notices received']] },
   { title: 'References', fields: [['ref1FirstName','Reference 1 — First'],['ref1LastName','Reference 1 — Last'],['ref1Phone','Reference 1 — Phone'],['ref1Relationship','Reference 1 — Relationship'],['ref2FirstName','Reference 2 — First'],['ref2LastName','Reference 2 — Last'],['ref2Phone','Reference 2 — Phone'],['ref2Relationship','Reference 2 — Relationship']] },
   { title: 'Additional', fields: [['promoCode','Promo code'],['additionalComments','Additional comments'],['signature','Signature']] },
@@ -238,12 +258,11 @@ function fmtDate(v) {
 }
 
 // ---------- Login ----------
-function tryLogin(endpoint, secret, showError) {
-  return fetch(`${endpoint}?secret=${encodeURIComponent(secret)}`)
+function tryLogin(secret, showError) {
+  return fetch(`${DEFAULT_ENDPOINT}?secret=${encodeURIComponent(secret)}`)
     .then(r => r.json())
     .then(data => {
       if (data.success) {
-        localStorage.setItem(LS_ENDPOINT, endpoint);
         localStorage.setItem(LS_SECRET, secret);
         allRows = data.rows || [];
         showDashboard();
@@ -255,28 +274,83 @@ function tryLogin(endpoint, secret, showError) {
 }
 
 document.getElementById('loginBtn').addEventListener('click', () => {
-  const endpoint = document.getElementById('endpointInput').value.trim();
   const secret = document.getElementById('secretInput').value.trim();
   document.getElementById('loginError').style.display = 'none';
-  if (!endpoint || !secret) return;
-  tryLogin(endpoint, secret, true);
+  if (!secret) return;
+  tryLogin(secret, true);
+});
+document.getElementById('secretInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('loginBtn').click();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.removeItem(LS_ENDPOINT);
   localStorage.removeItem(LS_SECRET);
   location.reload();
 });
 
 document.getElementById('refreshBtn').addEventListener('click', () => loadData());
 
-// on load, try saved credentials automatically
-(function initialLoad() {
-  const savedEndpoint = localStorage.getItem(LS_ENDPOINT);
-  const savedSecret = localStorage.getItem(LS_SECRET);
-  if (savedEndpoint && savedSecret) {
-    tryLogin(savedEndpoint, savedSecret, false);
+// ---------- Settings / change password ----------
+function openSettings() {
+  document.getElementById('settingsError').style.display = 'none';
+  document.getElementById('settingsSuccess').style.display = 'none';
+  document.getElementById('currentPasswordInput').value = '';
+  document.getElementById('newPasswordInput').value = '';
+  document.getElementById('settingsOverlay').style.display = 'block';
+  document.getElementById('settingsModal').style.display = 'block';
+}
+function closeSettings() {
+  document.getElementById('settingsOverlay').style.display = 'none';
+  document.getElementById('settingsModal').style.display = 'none';
+}
+document.getElementById('settingsBtn').addEventListener('click', openSettings);
+document.getElementById('settingsCancelBtn').addEventListener('click', closeSettings);
+document.getElementById('settingsOverlay').addEventListener('click', closeSettings);
+
+document.getElementById('settingsSaveBtn').addEventListener('click', () => {
+  const current = document.getElementById('currentPasswordInput').value.trim();
+  const next = document.getElementById('newPasswordInput').value.trim();
+  const errorEl = document.getElementById('settingsError');
+  const successEl = document.getElementById('settingsSuccess');
+  errorEl.style.display = 'none';
+  successEl.style.display = 'none';
+
+  if (!current || next.length < 8) {
+    errorEl.textContent = 'New password needs to be at least 8 characters.';
+    errorEl.style.display = 'block';
+    return;
   }
+
+  // Changing the password uses regular doPost (not no-cors), since we
+  // genuinely need to read back whether it actually worked here, unlike
+  // the visitor-facing form submission which doesn't need to.
+  const body = new FormData();
+  body.append('action', 'changePassword');
+  body.append('secret', current);
+  body.append('newPassword', next);
+  fetch(DEFAULT_ENDPOINT, { method: 'POST', body })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        localStorage.setItem(LS_SECRET, next);
+        successEl.style.display = 'block';
+        document.getElementById('currentPasswordInput').value = '';
+        document.getElementById('newPasswordInput').value = '';
+      } else {
+        errorEl.textContent = data.error || 'That current password doesn\'t look right.';
+        errorEl.style.display = 'block';
+      }
+    })
+    .catch(() => {
+      errorEl.textContent = 'Could not reach the server, check your connection and try again.';
+      errorEl.style.display = 'block';
+    });
+});
+
+// on load, try a saved password automatically
+(function initialLoad() {
+  const savedSecret = localStorage.getItem(LS_SECRET);
+  if (savedSecret) tryLogin(savedSecret, false);
 })();
 
 function showDashboard() {
@@ -286,10 +360,9 @@ function showDashboard() {
 }
 
 function loadData() {
-  const endpoint = localStorage.getItem(LS_ENDPOINT);
   const secret = localStorage.getItem(LS_SECRET);
-  if (!endpoint || !secret) return;
-  fetch(`${endpoint}?secret=${encodeURIComponent(secret)}`)
+  if (!secret) return;
+  fetch(`${DEFAULT_ENDPOINT}?secret=${encodeURIComponent(secret)}`)
     .then(r => r.json())
     .then(data => { if (data.success) { allRows = data.rows || []; render(); } });
 }
@@ -530,7 +603,6 @@ function closeDetail() {
 document.getElementById('overlay').addEventListener('click', closeDetail);
 
 function updateStatus(rowNum, newStatus) {
-  const endpoint = localStorage.getItem(LS_ENDPOINT);
   const secret = localStorage.getItem(LS_SECRET);
   const row = allRows.find(r => r._row === rowNum);
   if (row) row.Status = newStatus; // optimistic update
@@ -543,7 +615,7 @@ function updateStatus(rowNum, newStatus) {
   body.append('secret', secret);
   body.append('row', rowNum);
   body.append('status', newStatus);
-  fetch(endpoint, { method: 'POST', mode: 'no-cors', body });
+  fetch(DEFAULT_ENDPOINT, { method: 'POST', mode: 'no-cors', body });
 }
 </script>
 </body>

@@ -142,32 +142,41 @@ from the same Sheet you just set up, with stats, a searchable table,
 per-application detail views, file previews, and a "Download as PDF"
 button, all gated behind a password so applicant data isn't public.
 
-1. Back in the Apps Script editor, find this line near the top:
+The dashboard already has your Web app URL from Step 4 built in, so
+signing in only ever asks for a password, nothing else to paste in
+each time.
 
-   ```
-   const ADMIN_SECRET = 'CHANGE-THIS-TO-A-LONG-RANDOM-PASSWORD';
-   ```
+1. In the Apps Script editor, use the function dropdown at the top
+   (it probably says `doPost`) and switch it to **`getMyPassword`**,
+   then click **Run**.
+2. The first time you do this, it generates a real random password
+   automatically, there's nothing to type or invent. Approve the
+   permissions prompt if it asks (same one-time "unverified app"
+   screen from Step 3, same reason, this is your own private script).
+3. Open **View → Logs** (or the log panel that pops up automatically),
+   you'll see a line like `Your current dashboard password is:
+   a1b2c3d4-....` Copy that whole string.
+4. Open `admin-dashboard.html` in your browser and paste that password
+   into the sign-in screen. That's the only field there is.
 
-   Replace it with something long and random, 30+ characters, mash the
-   keyboard if you want, this password is the only thing standing
-   between the internet and your applicants' personal information, so
-   don't leave the placeholder in place and don't reuse a password from
-   somewhere else.
-2. Save, then **Deploy → Manage deployments → edit (pencil icon) → New
-   version → Deploy**, this republishes the script with your real
-   password active (edits to the code don't go live until you do this).
-3. Open `admin-dashboard.html` in your browser.
-4. On the sign-in screen, paste in:
-   - **Backend URL**: the exact same Web app URL from Step 4 above
-   - **Dashboard password**: the `ADMIN_SECRET` you just set
-5. Click Sign In. You should see the dashboard, stats, chart, and table,
-   with your test submission from Step 6 already in it.
+Prefer to pick your own password instead of the random one? Switch the
+function dropdown to **`setMyPassword`** instead, edit the
+`myNewPassword` line inside that function in the code first, then Run
+it, that becomes your password from then on.
 
-Your browser remembers both values after the first sign-in, so you won't
-need to re-enter them every visit, just bookmark
+Once you're signed in, your browser remembers the password, so you
+won't need to re-enter it every visit, just bookmark
 `https://yourdomain.com/admin-dashboard.html` directly (it's not linked
 anywhere in the site's navigation on purpose, since it's an internal
 tool, not something visitors should stumble into).
+
+### Changing your password later
+
+No need to go back into the Apps Script editor for this, click
+**Settings** in the dashboard's own top bar, enter your current
+password plus a new one (8+ characters), and save, it takes effect
+immediately, including on any other device you're signed in on (they'll
+just need the new password next time they open it).
 
 ### What you can do from the dashboard
 
@@ -230,6 +239,30 @@ Two most common causes:
    since they aren't logged into your Google account. Go back to Deploy
    → Manage deployments → edit (pencil icon) → double check that
    setting.
+
+### If uploaded documents aren't showing up, or won't open
+
+Every uploaded file is set to "Anyone with the link can view" the
+moment it's saved, specifically so the dashboard's file previews and
+download links work without you needing to be signed into a particular
+Google account, this isn't a public listing, someone would still need
+the exact link, which only exists in your Sheet and dashboard, but it
+does mean the file isn't locked to just your account either.
+
+If a document still doesn't appear after that:
+1. Check the Sheet itself first, is there a link in that application's
+   `document1`/`document2`/`document3` column at all? If the column is
+   empty, the file never made it to Drive in the first place, if there's
+   a link there, the file exists, and the issue is more likely the
+   dashboard's preview specifically, not the upload.
+2. Check the Apps Script **Executions** log (left sidebar in the Apps
+   Script editor) for the submission in question, click into it, `Code.gs`
+   logs the name and type of every field it receives, including files,
+   which tells you definitively whether a file arrived at all.
+3. If the link exists but the dashboard's inline preview shows a blank
+   box, click **"View / Download"** to open it directly in Drive
+   instead, that always works even in the rare case the embedded
+   in-page preview doesn't for a particular file type.
 
 One real limitation worth knowing: because Google Apps Script doesn't
 send back the usual browser permission headers (called CORS), the site

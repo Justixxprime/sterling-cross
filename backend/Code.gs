@@ -12,23 +12,64 @@
  *   3. Emails you a clean summary so you know the moment someone applies
  *
  * It also serves as the data API for admin-dashboard.html, the actual
- * stats/table/PDF-export dashboard, gated by the ADMIN_SECRET below.
+ * stats/table/PDF-export dashboard, gated by a password that's
+ * generated automatically the first time this runs (see getMyPassword
+ * below), not hardcoded in this file.
  *
  * Setup instructions are in How-To-Set-Up-Google-Backend.md, this file
- * only needs the 4 values right below edited before it'll work.
+ * only needs the 3 values right below edited before it'll work.
  */
 
-// ====================== EDIT THESE 4 LINES ======================
+// ====================== EDIT THESE 3 LINES ======================
 const NOTIFICATION_EMAIL = 'you@sterlingcross.law'; // where new-application emails go
 const DRIVE_FOLDER_NAME = 'Legal Plan Applications — Uploaded Documents';
 const SHEET_TAB_NAME = 'Applications';
-// A long random password that protects the admin dashboard, only
-// people who know this can view applicant data. Make this long and
-// random, e.g. mash the keyboard for 30+ characters, this is the only
-// thing standing between the public internet and your applicants'
-// personal information, don't leave it as the placeholder below.
-const ADMIN_SECRET = 'CHANGE-THIS-TO-A-LONG-RANDOM-PASSWORD';
 // ==================================================================
+//
+// Your dashboard password is NOT set here anymore, on first run it's
+// generated for you automatically and stored securely in this Google
+// project's own settings (not in this file, so it never ends up
+// visible in your code). Run the ONE-TIME function `getMyPassword`
+// (pick it from the function dropdown above, then click Run) to see
+// it. You can change it any time, either from that same dropdown
+// (`setMyPassword`) or right from the dashboard's Settings panel once
+// you're signed in.
+
+function getAdminSecret_() {
+  const props = PropertiesService.getScriptProperties();
+  let secret = props.getProperty('ADMIN_SECRET');
+  if (!secret) {
+    // first run ever, generate a real random password automatically so
+    // nobody accidentally ships this with a guessable placeholder still
+    // sitting in plain text
+    secret = Utilities.getUuid() + Utilities.getUuid();
+    props.setProperty('ADMIN_SECRET', secret);
+  }
+  return secret;
+}
+
+/**
+ * Run this once by hand (function dropdown above → getMyPassword → Run)
+ * any time you need to see your current dashboard password, it prints
+ * to the execution log (View → Executions, or the log panel that opens
+ * automatically after running it from the editor).
+ */
+function getMyPassword() {
+  console.log('Your current dashboard password is: ' + getAdminSecret_());
+}
+
+/**
+ * Run this once by hand to set your OWN password instead of the
+ * random generated one, edit the value on the right of the equals
+ * sign below, run it, then that's your new password going forward
+ * (this only takes effect after you actually run this function, editing
+ * the line alone does nothing).
+ */
+function setMyPassword() {
+  const myNewPassword = 'CHANGE-THIS-AND-RUN-ME';
+  PropertiesService.getScriptProperties().setProperty('ADMIN_SECRET', myNewPassword);
+  console.log('Password updated. Your new dashboard password is: ' + myNewPassword);
+}
 
 // The order columns appear in the dashboard sheet. Anything submitted
 // that isn't listed here still gets its own column automatically, added
@@ -60,6 +101,9 @@ function doPost(e) {
     if (e.parameter && e.parameter.action === 'updateStatus') {
       return handleStatusUpdate_(e);
     }
+    if (e.parameter && e.parameter.action === 'changePassword') {
+      return handleChangePassword_(e);
+    }
 
     const folder = getOrCreateFolder_();
     const sheet = getOrCreateSheet_();
@@ -72,6 +116,12 @@ function doPost(e) {
     // field, Apps Script hands us an actual Blob instead, that's how we
     // tell the two apart below, no separate "files" object to dig through.
     const params = e.parameter || {};
+    // helpful when debugging: shows exactly what came through and as
+    // what type, check View → Executions in the Apps Script editor
+    // and open a recent run if you ever need to see this
+    for (const key in params) {
+      console.log(`${key}: ${typeof params[key]}${params[key] && params[key].getName ? ' (file: ' + params[key].getName() + ')' : ''}`);
+    }
     for (const key in params) {
       const value = params[key];
       if (value && typeof value.getName === 'function' && typeof value.getBytes === 'function') {
@@ -79,6 +129,15 @@ function doPost(e) {
         if (value.getBytes().length > 0) {
           const file = folder.createFile(value);
           file.setName(`${new Date().toISOString().slice(0, 10)} — ${textFields.fullName || 'applicant'} — ${value.getName()}`);
+          // files are private by default, viewable only by the exact
+          // Google account that owns them, that means YOU can see them
+          // fine while signed into that account, but the dashboard's
+          // in-page preview needs this explicit share to actually
+          // display anything rather than an access-denied page, this
+          // does not make the file publicly searchable or listed
+          // anywhere, only reachable by someone who already has the
+          // exact link (which only the Sheet and dashboard contain)
+          file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
           fileLinks[key] = file.getUrl();
         }
       } else {
@@ -105,14 +164,14 @@ function doPost(e) {
 
 /**
  * The dashboard's data feed. Returns every application row as JSON,
- * gated by ADMIN_SECRET, if the secret doesn't match, this deliberately
+ * gated by your dashboard password, if the secret doesn't match, this deliberately
  * returns the exact same generic error a network failure would, rather
  * than confirming "wrong password" vs "no such thing here", so a
  * stranger poking at the URL can't tell the difference.
  */
 function doGet(e) {
   const secret = e.parameter && e.parameter.secret;
-  if (!secret || secret !== ADMIN_SECRET) {
+  if (!secret || secret !== getAdminSecret_()) {
     return ContentService
       .createTextOutput(JSON.stringify({ success: false, error: 'Not found' }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -145,7 +204,7 @@ function doGet(e) {
 
 function handleStatusUpdate_(e) {
   const secret = e.parameter.secret;
-  if (!secret || secret !== ADMIN_SECRET) {
+  if (!secret || secret !== getAdminSecret_()) {
     return ContentService
       .createTextOutput(JSON.stringify({ success: false, error: 'Not found' }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -160,6 +219,32 @@ function handleStatusUpdate_(e) {
   }
   const sheet = getOrCreateSheet_();
   sheet.getRange(rowNum, 1).setValue(newStatus); // Status is always column A
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Lets the dashboard's own Settings panel change the password, without
+ * needing to open the Apps Script editor at all. Requires the CURRENT
+ * correct password to set a new one, exactly like changing a password
+ * anywhere else, someone who doesn't already have access can't lock
+ * you out or take it over just by finding this endpoint.
+ */
+function handleChangePassword_(e) {
+  const currentSecret = e.parameter.secret;
+  if (!currentSecret || currentSecret !== getAdminSecret_()) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: 'Not found' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  const newPassword = (e.parameter.newPassword || '').trim();
+  if (newPassword.length < 8) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: 'Password must be at least 8 characters.' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  PropertiesService.getScriptProperties().setProperty('ADMIN_SECRET', newPassword);
   return ContentService
     .createTextOutput(JSON.stringify({ success: true }))
     .setMimeType(ContentService.MimeType.JSON);
