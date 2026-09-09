@@ -104,6 +104,9 @@ function doPost(e) {
     if (e.parameter && e.parameter.action === 'changePassword') {
       return handleChangePassword_(e);
     }
+    if (e.parameter && e.parameter.action === 'deleteApplication') {
+      return handleDeleteApplication_(e);
+    }
 
     const folder = getOrCreateFolder_();
     const sheet = getOrCreateSheet_();
@@ -111,39 +114,50 @@ function doPost(e) {
     const textFields = {};
     const fileLinks = {};
 
-    // e.parameter holds every submitted field. For a normal text/select/
-    // radio field the value is a plain string. For a <input type="file">
-    // field, Apps Script hands us an actual Blob instead, that's how we
-    // tell the two apart below, no separate "files" object to dig through.
+    // e.parameter holds every submitted field, all of it plain strings,
+    // files included, the frontend sends each uploaded file as 3 plain
+    // text fields (name__base64, name__name, name__type) instead of a
+    // real file object, this sidesteps Apps Script's inconsistent
+    // handling of actual file blobs inside multipart bodies entirely,
+    // by the time this code runs, everything is just text either way.
     const params = e.parameter || {};
-    // helpful when debugging: shows exactly what came through and as
-    // what type, check View → Executions in the Apps Script editor
-    // and open a recent run if you ever need to see this
+    // helpful when debugging: shows exactly what came through, check
+    // View → Executions in the Apps Script editor and open a recent
+    // run if you ever need to see this
     for (const key in params) {
-      console.log(`${key}: ${typeof params[key]}${params[key] && params[key].getName ? ' (file: ' + params[key].getName() + ')' : ''}`);
+      console.log(`${key}: ${typeof params[key]}`);
     }
+
+    const fileFieldNames = new Set();
     for (const key in params) {
-      const value = params[key];
-      if (value && typeof value.getName === 'function' && typeof value.getBytes === 'function') {
-        // it's an uploaded file, only save it if something was actually chosen
-        if (value.getBytes().length > 0) {
-          const file = folder.createFile(value);
-          file.setName(`${new Date().toISOString().slice(0, 10)} — ${textFields.fullName || 'applicant'} — ${value.getName()}`);
-          // files are private by default, viewable only by the exact
-          // Google account that owns them, that means YOU can see them
-          // fine while signed into that account, but the dashboard's
-          // in-page preview needs this explicit share to actually
-          // display anything rather than an access-denied page, this
-          // does not make the file publicly searchable or listed
-          // anywhere, only reachable by someone who already has the
-          // exact link (which only the Sheet and dashboard contain)
-          file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-          fileLinks[key] = file.getUrl();
-        }
-      } else {
-        textFields[key] = value;
-      }
+      if (key.endsWith('__base64')) fileFieldNames.add(key.slice(0, -'__base64'.length));
     }
+
+    for (const key in params) {
+      if (key.endsWith('__base64') || key.endsWith('__name') || key.endsWith('__type')) continue;
+      textFields[key] = params[key];
+    }
+
+    fileFieldNames.forEach(fieldName => {
+      const base64 = params[`${fieldName}__base64`];
+      const filename = params[`${fieldName}__name`] || fieldName;
+      const mimeType = params[`${fieldName}__type`] || 'application/octet-stream';
+      if (!base64) return;
+      const bytes = Utilities.base64Decode(base64);
+      const blob = Utilities.newBlob(bytes, mimeType, filename);
+      const file = folder.createFile(blob);
+      file.setName(`${new Date().toISOString().slice(0, 10)} — ${textFields.fullName || 'applicant'} — ${filename}`);
+      // files are private by default, viewable only by the exact
+      // Google account that owns them, that means YOU can see them
+      // fine while signed into that account, but the dashboard's
+      // in-page preview needs this explicit share to actually
+      // display anything rather than an access-denied page, this
+      // does not make the file publicly searchable or listed
+      // anywhere, only reachable by someone who already has the
+      // exact link (which only the Sheet and dashboard contain)
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      fileLinks[fieldName] = file.getUrl();
+    });
 
     appendRow_(sheet, textFields, fileLinks);
     sendNotificationEmail_(textFields, fileLinks);
@@ -250,6 +264,52 @@ function handleChangePassword_(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+/**
+ * Deletes an application entirely, the Sheet row and any uploaded
+ * documents that went with it. This can't be undone, the dashboard
+ * asks the person to confirm before ever sending this request.
+ */
+function handleDeleteApplication_(e) {
+  const secret = e.parameter.secret;
+  if (!secret || secret !== getAdminSecret_()) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: 'Not found' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  const rowNum = parseInt(e.parameter.row, 10);
+  if (!rowNum || rowNum < 2) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: 'Bad request' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  const sheet = getOrCreateSheet_();
+  if (rowNum > sheet.getLastRow()) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: 'That row no longer exists.' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // trash any uploaded files that belonged to this application before
+  // the row (and its file links) disappear for good
+  const rowValues = sheet.getRange(rowNum, 1, 1, sheet.getLastColumn()).getValues()[0];
+  rowValues.forEach(cell => {
+    const id = driveIdFromUrl_(cell);
+    if (id) {
+      try { DriveApp.getFileById(id).setTrashed(true); } catch (err) { /* file already gone, ignore */ }
+    }
+  });
+
+  sheet.deleteRow(rowNum);
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function driveIdFromUrl_(value) {
+  const match = String(value || '').match(/\/d\/([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
 // ---------- helpers ----------
 
 function getOrCreateFolder_() {
@@ -352,6 +412,11 @@ function testSubmission() {
       phone: '+13125550142',
       matterType: 'Family Law',
       matterDetails: 'This is a test submission from testSubmission().',
+      // a tiny 1x1 pixel PNG, base64-encoded, to confirm file handling
+      // works end to end without needing a real document on hand
+      document1__base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+      document1__name: 'test-image.png',
+      document1__type: 'image/png',
     }
   };
   const result = doPost(fakeEvent);

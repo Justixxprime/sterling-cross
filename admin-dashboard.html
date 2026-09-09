@@ -56,6 +56,24 @@ main { max-width: 1320px; margin: 0 auto; padding: 28px; }
 
 .panels-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 24px; }
 @media (max-width: 900px) { .panels-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) {
+  header.topbar { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+  header.topbar .brand { font-size: 14px; }
+  header.topbar .actions { gap: 8px; width: 100%; }
+  header.topbar .actions .btn { flex: 1; justify-content: center; padding: 9px 10px; font-size: 12px; }
+  main { padding: 16px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card { padding: 14px; }
+  .stat-card .stat-value { font-size: 22px; }
+  .panel { padding: 16px; }
+  .table-toolbar select { flex: 1; min-width: 0; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 720px; }
+  #detailPanel { width: 100vw; }
+  .detail-header, .detail-body { padding-left: 18px; padding-right: 18px; }
+  .field-row { flex-direction: column; gap: 2px; }
+  .field-row .v { text-align: left; }
+}
 .panel { background: #fff; border-radius: 16px; padding: 22px; border: 1px solid rgba(22,20,16,0.06); }
 .panel h3 { font-size: 15px; margin-bottom: 16px; }
 .breakdown-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; }
@@ -164,7 +182,9 @@ tbody td { padding: 12px 16px; white-space: nowrap; }
 <div class="panels-grid">
 <div class="panel">
 <h3>Applications Over Time</h3>
-<canvas height="90" id="timeChart"></canvas>
+<div style="position:relative;height:220px;">
+<canvas id="timeChart"></canvas>
+</div>
 </div>
 <div class="panel">
 <h3>By Plan</h3>
@@ -451,17 +471,23 @@ function renderCharts() {
     }).length);
   }
 
-  const ctx = document.getElementById('timeChart').getContext('2d');
+  const canvas = document.getElementById('timeChart');
+  if (!canvas) {
+    // already replaced with the "chart could not load" fallback message
+    // on an earlier render, nothing further to do here
+    return;
+  }
   if (typeof Chart === 'undefined') {
     // Chart.js failed to load (CDN hiccup, ad blocker, offline), the rest
     // of the dashboard, stats, table, filters, all still fully work
     // without it, so this degrades gracefully instead of taking
     // everything else down with it
-    document.getElementById('timeChart').replaceWith(
+    canvas.replaceWith(
       Object.assign(document.createElement('p'), { className: 'no-data', textContent: 'Chart could not load, everything else on this page still works normally.' })
     );
     return;
   }
+  const ctx = canvas.getContext('2d');
   if (timeChartInstance) timeChartInstance.destroy();
   timeChartInstance = new Chart(ctx, {
     type: 'line',
@@ -478,6 +504,8 @@ function renderCharts() {
       }]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } }
     }
@@ -582,6 +610,7 @@ function openDetail(rowNum) {
       </select>
       <div class="detail-actions">
         <button class="btn btn-gold" onclick="window.print()" type="button"><i class="fa-solid fa-file-pdf"></i> Download as PDF</button>
+        <button class="btn" id="deleteBtn" style="background:rgba(192,57,43,0.12);color:var(--red);" type="button"><i class="fa-solid fa-trash"></i> Delete</button>
       </div>
     </div>
     <div class="detail-body">
@@ -592,6 +621,11 @@ function openDetail(rowNum) {
       </div>
     </div>
   `;
+  // wired up here instead of an inline onclick, an applicant's name can
+  // contain a quote character (an apostrophe in a last name, for
+  // instance), which would break out of an inline attribute string,
+  // this way the name never has to survive a round-trip through HTML at all
+  document.getElementById('deleteBtn').addEventListener('click', () => deleteApplication(r._row, r.fullName || 'this applicant'));
   document.getElementById('overlay').classList.add('open');
   document.getElementById('detailPanel').classList.add('open');
 }
@@ -601,6 +635,30 @@ function closeDetail() {
   document.getElementById('detailPanel').classList.remove('open');
 }
 document.getElementById('overlay').addEventListener('click', closeDetail);
+
+function deleteApplication(rowNum, applicantName) {
+  const confirmed = confirm(`Delete ${applicantName}'s application permanently? This also deletes any documents they uploaded. This can't be undone.`);
+  if (!confirmed) return;
+
+  const secret = localStorage.getItem(LS_SECRET);
+  const deleteBtn = document.getElementById('deleteBtn');
+  if (deleteBtn) { deleteBtn.disabled = true; deleteBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deleting…'; }
+
+  const body = new FormData();
+  body.append('action', 'deleteApplication');
+  body.append('secret', secret);
+  body.append('row', rowNum);
+  fetch(DEFAULT_ENDPOINT, { method: 'POST', mode: 'no-cors', body })
+    .then(() => {
+      closeDetail();
+      allRows = allRows.filter(r => r._row !== rowNum);
+      render();
+      // row numbers of everything below the deleted row just shifted by
+      // one on the actual Sheet, resync shortly after so the next
+      // status change or delete targets the right row, not a stale one
+      setTimeout(loadData, 1200);
+    });
+}
 
 function updateStatus(rowNum, newStatus) {
   const secret = localStorage.getItem(LS_SECRET);

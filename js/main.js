@@ -817,24 +817,56 @@ document.addEventListener('DOMContentLoaded', () => {
       const submitBtn = appForm.querySelector('[type="submit"]');
       if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
       try {
+        // Files are sent as plain base64 text fields instead of raw
+        // File objects, deliberately, Apps Script's handling of actual
+        // file blobs inside a multipart body is inconsistent in
+        // practice, base64-encoding them into ordinary string fields
+        // sidesteps that completely, every field the backend receives
+        // is just plain text, nothing for it to misinterpret.
+        const fileInputs = Array.from(appForm.querySelectorAll('input[type="file"]'));
+        const fileReadPromises = fileInputs
+          .filter(input => input.files && input.files[0])
+          .map(input => new Promise((resolve, reject) => {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = () => {
+              // reader.result looks like "data:image/png;base64,AAAA...",
+              // only the part after the comma is the actual base64 payload
+              const base64 = reader.result.split(',')[1];
+              resolve({ fieldName: input.name, base64, filename: file.name, mimeType: file.type || 'application/octet-stream' });
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          }));
+        const encodedFiles = await Promise.all(fileReadPromises);
+
+        const body = new FormData();
+        // every non-file field goes through exactly as before
+        new FormData(appForm).forEach((value, key) => {
+          const isFileField = fileInputs.some(input => input.name === key);
+          if (!isFileField) body.append(key, value);
+        });
+        // each file becomes 3 plain text fields instead of 1 file field
+        encodedFiles.forEach(f => {
+          body.append(`${f.fieldName}__base64`, f.base64);
+          body.append(`${f.fieldName}__name`, f.filename);
+          body.append(`${f.fieldName}__type`, f.mimeType);
+        });
+
         // mode:'no-cors' is required here, Apps Script Web Apps don't send
         // back CORS headers, so the browser won't let us read the response
         // body either way, this just means we can't distinguish "it worked"
         // from "the server sent back an error" from the response itself,
         // only from whether the request failed to send at all (network
-        // error, DNS failure, wrong URL, that kind of thing). Sending
-        // FormData (not JSON) is what lets the uploaded files above
-        // actually reach the backend as real files instead of being
-        // silently dropped, Apps Script receives them as Blobs.
+        // error, DNS failure, wrong URL, that kind of thing).
         await fetch(endpointUrl, {
           method: 'POST',
           mode: 'no-cors',
-          body: new FormData(appForm),
+          body,
         });
         // hide every step panel and show the success panel instead,
-        // no payment is charged here, the actual value of this step
-        // is that the full questionnaire (including any uploaded photos)
-        // has just been sent to our team
+        // the actual value of this step is that the full questionnaire
+        // (including any uploaded documents) has just been sent to our team
         panels.forEach(p => p.classList.remove('active'));
         document.getElementById('stepIndicator')?.classList.add('hidden');
         if (successPanel) successPanel.classList.add('active');

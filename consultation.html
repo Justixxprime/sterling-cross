@@ -201,19 +201,12 @@
 <p class="subtext max-w-lg mx-auto reveal reveal-delay-1">This is where membership starts. Pick a plan, tell us about your household and legal needs, and our intake team will confirm your coverage and connect you with an attorney, usually within one business day.</p>
 </div>
 </section>
-<!--
-  NOTE FOR OBIOMA:
-  This site is currently in the testing and client acquisition phase,
-  so the "Activate Membership" button below does not charge a real
-  card. Clicking it submits the full legal plan application to your
-  Web3Forms inbox and shows an "application received" confirmation to
-  the visitor. When you are ready to accept real payment, the correct
-  approach is Stripe Payment Links (a free, hosted checkout page
-  Stripe generates for you, no code required), never a custom form
-  that collects raw card numbers directly, that is not secure and is
-  not compliant with card industry standards. See the README for the
-  full setup steps when that time comes.
--->
+<!-- The "Activate Membership" button submits the full application to
+     the Google Apps Script backend (see backend/Code.gs), it does not
+     charge a card, that field set has no "name" attributes so it's
+     never included in the submission. Swap in a real Stripe Payment
+     Link when ready to accept live payment, see the comment further
+     down where the card fields are for details. -->
 <section class="max-w-3xl mx-auto px-6 md:px-10 pb-10">
 <div class="grid md:grid-cols-3 gap-6 mb-14">
 <div class="tilt-card reveal bg-white rounded-2xl p-6 text-center">
@@ -861,17 +854,11 @@
 <span class="font-bold" id="paymentAmountLabel">First Payment Due Today (USD)</span>
 <span class="font-display font-extrabold text-2xl" id="paymentAmountDisplay">$65.00</span>
 </div>
-<!--
-  DESIGN PREVIEW ONLY, not a real payment form.
-  These card fields are intentionally missing "name" attributes so
-  they can never be included in this form's submission to the backend,
-  a plain form submission is not a secure or PCI-compliant way to
-  collect real card numbers. This block exists purely to show the
-  client what the checkout step will look like. When real billing is
-  ready, replace this entire block with a Stripe Payment Link or
-  Stripe Elements embed, both handle card data on Stripe's own secure
-  servers so raw card numbers never touch this site or its inbox.
--->
+<!-- Card fields intentionally have no "name" attribute, so they're
+     never included in the form submission, when a real payment
+     processor is wired in, replace this block with a Stripe Payment
+     Link or Stripe Elements embed, both handle card data on Stripe's
+     own secure servers so raw card numbers never touch this site. -->
 <div class="mb-6" data-payment-preview-only="">
 <p class="text-xs font-bold uppercase tracking-widest text-ink/40 mb-3">Payment Details</p>
 <div class="border border-ink/15 rounded-2xl p-5 space-y-4">

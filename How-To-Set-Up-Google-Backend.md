@@ -190,6 +190,9 @@ just need the new password next time they open it).
 - **Change status** right from that detail view (New → Contacted →
   Enrolled → Declined), it saves back to the Sheet immediately
 - **View or download uploaded documents** directly from Drive
+- **Delete an application entirely** from its detail view, this removes
+  the Sheet row and trashes any documents that came with it, there's a
+  confirmation prompt first since this can't be undone
 - **Download as PDF**: opens your browser's print dialog formatted as a
   clean document, choose "Save as PDF" as the destination instead of a
   physical printer
