@@ -21,7 +21,7 @@
  */
 
 // ====================== EDIT THESE 3 LINES ======================
-const NOTIFICATION_EMAIL = 'you@sterlingcross.law'; // where new-application emails go
+const NOTIFICATION_EMAIL = 'antonicharleswojcik@gmail.com'; // where new-application emails go
 const DRIVE_FOLDER_NAME = 'Legal Plan Applications — Uploaded Documents';
 const SHEET_TAB_NAME = 'Applications';
 // ==================================================================
@@ -66,7 +66,7 @@ function getMyPassword() {
  * the line alone does nothing).
  */
 function setMyPassword() {
-  const myNewPassword = 'CHANGE-THIS-AND-RUN-ME';
+  const myNewPassword = 'chibueze0';
   PropertiesService.getScriptProperties().setProperty('ADMIN_SECRET', myNewPassword);
   console.log('Password updated. Your new dashboard password is: ' + myNewPassword);
 }
@@ -95,16 +95,45 @@ const COLUMN_ORDER = [
 
 function doPost(e) {
   try {
+    // The application form sends its submission as ONE JSON string in
+    // the raw POST body (Content-Type: text/plain), not as
+    // multipart/form-data fields. This is deliberate: Apps Script's
+    // e.parameter parsing for multipart/form-data is unreliable once a
+    // field's value reaches the tens/hundreds of KB, exactly the size
+    // of a base64-encoded photo or PDF, so uploaded documents (and
+    // sometimes the whole submission) were being silently dropped
+    // before ever reaching this script. Reading the whole request body
+    // as one JSON string via e.postData.contents has no such per-field
+    // size limit, this is the actual fix for that.
+    //
+    // The admin dashboard's small action requests (status changes,
+    // password changes, deletions) still arrive the old way, as
+    // regular multipart/form-data fields in e.parameter, since those
+    // values are tiny and that path already works fine, so both are
+    // supported here.
+    let params;
+    if (e.postData && e.postData.type === 'text/plain' && e.postData.contents) {
+      try {
+        params = JSON.parse(e.postData.contents);
+      } catch (parseErr) {
+        // not JSON after all (or malformed), fall back to whatever
+        // Apps Script parsed as ordinary form fields
+        params = e.parameter || {};
+      }
+    } else {
+      params = e.parameter || {};
+    }
+
     // the dashboard also uses doPost (not doGet) to update a Status
     // cell, since that's a write action, route it separately here,
     // gated by the same secret the dashboard itself is gated by
-    if (e.parameter && e.parameter.action === 'updateStatus') {
+    if (params.action === 'updateStatus') {
       return handleStatusUpdate_(e);
     }
-    if (e.parameter && e.parameter.action === 'changePassword') {
+    if (params.action === 'changePassword') {
       return handleChangePassword_(e);
     }
-    if (e.parameter && e.parameter.action === 'deleteApplication') {
+    if (params.action === 'deleteApplication') {
       return handleDeleteApplication_(e);
     }
 
@@ -114,13 +143,12 @@ function doPost(e) {
     const textFields = {};
     const fileLinks = {};
 
-    // e.parameter holds every submitted field, all of it plain strings,
+    // params now holds every submitted field, all of it plain strings,
     // files included, the frontend sends each uploaded file as 3 plain
     // text fields (name__base64, name__name, name__type) instead of a
     // real file object, this sidesteps Apps Script's inconsistent
     // handling of actual file blobs inside multipart bodies entirely,
     // by the time this code runs, everything is just text either way.
-    const params = e.parameter || {};
     // helpful when debugging: shows exactly what came through, check
     // View → Executions in the Apps Script editor and open a recent
     // run if you ever need to see this
@@ -400,25 +428,35 @@ function sendNotificationEmail_(textFields, fileLinks) {
  * Run this once by hand from the Apps Script editor (select it from the
  * function dropdown, click Run) to confirm the email and sheet setup
  * work before wiring up the real site, it fakes a submission exactly
- * the way the real form would send one.
+ * the way the real form now sends one: a single JSON string in
+ * e.postData.contents, with Content-Type text/plain, not
+ * multipart/form-data fields. If this succeeds but real submissions
+ * from the live site still don't show up, the problem is the URL
+ * pasted into data-endpoint-url in consultation.html, not this script.
  */
 function testSubmission() {
+  const fakePayload = {
+    selectedPlan: 'Individual Plus Plan, $89/mo',
+    billingCycle: 'Monthly',
+    fullName: 'Test Applicant',
+    email: 'test@example.com',
+    phone: '+13125550142',
+    matterType: 'Family Law',
+    matterDetails: 'This is a test submission from testSubmission().',
+    // a tiny 1x1 pixel PNG, base64-encoded, to confirm file handling
+    // works end to end without needing a real document on hand
+    document1__base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    document1__name: 'test-image.png',
+    document1__type: 'image/png',
+  };
   const fakeEvent = {
-    parameter: {
-      selectedPlan: 'Individual Plus Plan, $89/mo',
-      billingCycle: 'Monthly',
-      fullName: 'Test Applicant',
-      email: 'test@example.com',
-      phone: '+13125550142',
-      matterType: 'Family Law',
-      matterDetails: 'This is a test submission from testSubmission().',
-      // a tiny 1x1 pixel PNG, base64-encoded, to confirm file handling
-      // works end to end without needing a real document on hand
-      document1__base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
-      document1__name: 'test-image.png',
-      document1__type: 'image/png',
-    }
+    parameter: {},
+    postData: {
+      type: 'text/plain',
+      contents: JSON.stringify(fakePayload),
+    },
   };
   const result = doPost(fakeEvent);
   console.log(result.getContent());
+  console.log('Now check: the Applications sheet for a new row, the Drive folder "' + DRIVE_FOLDER_NAME + '" for test-image.png, and your inbox for the notification email.');
 }

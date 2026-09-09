@@ -840,17 +840,27 @@ document.addEventListener('DOMContentLoaded', () => {
           }));
         const encodedFiles = await Promise.all(fileReadPromises);
 
-        const body = new FormData();
-        // every non-file field goes through exactly as before
+        // Everything (plain fields AND the base64 file fields) goes into
+        // one plain object, sent as a single JSON string in the raw POST
+        // body, instead of as multipart/form-data fields. This is the
+        // actual fix for uploads silently not arriving: Apps Script's
+        // e.parameter parsing for multipart/form-data is unreliable once
+        // a field's value gets into the tens/hundreds of KB, which is
+        // exactly the size of a base64-encoded photo or PDF, so uploaded
+        // documents (and sometimes the whole submission, on a bad
+        // network) were being dropped before they ever reached the
+        // Sheet or Drive. Reading the whole request as one JSON string
+        // via e.postData.contents on the backend has no such per-field
+        // size limit.
+        const payload = {};
+        const fileFieldNames = new Set(fileInputs.map(input => input.name));
         new FormData(appForm).forEach((value, key) => {
-          const isFileField = fileInputs.some(input => input.name === key);
-          if (!isFileField) body.append(key, value);
+          if (!fileFieldNames.has(key)) payload[key] = value;
         });
-        // each file becomes 3 plain text fields instead of 1 file field
         encodedFiles.forEach(f => {
-          body.append(`${f.fieldName}__base64`, f.base64);
-          body.append(`${f.fieldName}__name`, f.filename);
-          body.append(`${f.fieldName}__type`, f.mimeType);
+          payload[`${f.fieldName}__base64`] = f.base64;
+          payload[`${f.fieldName}__name`] = f.filename;
+          payload[`${f.fieldName}__type`] = f.mimeType;
         });
 
         // mode:'no-cors' is required here, Apps Script Web Apps don't send
@@ -858,11 +868,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // body either way, this just means we can't distinguish "it worked"
         // from "the server sent back an error" from the response itself,
         // only from whether the request failed to send at all (network
-        // error, DNS failure, wrong URL, that kind of thing).
+        // error, DNS failure, wrong URL, that kind of thing). Content-Type
+        // has to stay one of the browser's "simple request" values for a
+        // no-cors POST to be allowed at all, text/plain is on that list.
         await fetch(endpointUrl, {
           method: 'POST',
           mode: 'no-cors',
-          body,
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload),
         });
         // hide every step panel and show the success panel instead,
         // the actual value of this step is that the full questionnaire
