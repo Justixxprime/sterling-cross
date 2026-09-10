@@ -66,7 +66,7 @@ function getMyPassword() {
  * the line alone does nothing).
  */
 function setMyPassword() {
-  const myNewPassword = 'chibueze0';
+  const myNewPassword = 'CHANGE-THIS-AND-RUN-ME';
   PropertiesService.getScriptProperties().setProperty('ADMIN_SECRET', myNewPassword);
   console.log('Password updated. Your new dashboard password is: ' + myNewPassword);
 }

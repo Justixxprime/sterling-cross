@@ -1,3 +1,18 @@
+// Everything on this page (nav, animations, the application form, all of
+// it) is set up inside one DOMContentLoaded listener below. If any one
+// piece of that setup throws partway through, every listener that would
+// have been attached AFTER it (form submit included) silently never gets
+// attached at all, and the page just looks inert, buttons that should do
+// something do nothing, with no visible error. These two listeners exist
+// so that instead of silence, the browser's console (F12 → Console tab)
+// always shows exactly what broke and where.
+window.addEventListener('error', (event) => {
+  console.error('[page error]', event.message, 'at', event.filename + ':' + event.lineno);
+});
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[unhandled promise rejection]', event.reason);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -622,7 +637,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   if (appForm) {
-    // Photo upload dropzones: flip Pending -> Uploaded and show the filename
+    // Photo upload dropzones. Picking a file here only proves the
+    // browser can see it on your disk, it hasn't gone anywhere yet, the
+    // actual send only happens later when "Activate Membership" is
+    // clicked. The pill says "Selected" at this point, not "Uploaded",
+    // on purpose, calling it "Uploaded" this early was misleading:
+    // it made it look like the file had already reached our server
+    // when nothing had been sent yet. The real "did it upload"
+    // states (Sending…, Sent, Couldn't send) are set later, during
+    // actual submission, further down in this file.
     appForm.querySelectorAll('.upload-input-hidden').forEach((input) => {
       input.addEventListener('change', () => {
         const card = input.closest('.upload-card');
@@ -639,8 +662,8 @@ document.addEventListener('DOMContentLoaded', () => {
             label.textContent = dropzoneOriginalLabel;
             return;
           }
-          pill.textContent = 'Uploaded';
-          pill.dataset.status = 'uploaded';
+          pill.textContent = 'Selected';
+          pill.dataset.status = 'selected';
           card.classList.add('has-file');
           label.textContent = file.name.length > 18 ? file.name.slice(0, 15) + '…' : file.name;
         } else {
@@ -782,12 +805,12 @@ document.addEventListener('DOMContentLoaded', () => {
               const target = document.getElementById(`summary-${id}`);
               if (input && target) target.textContent = input.value || 'Not provided';
             });
-            const planRadio = appForm.querySelector('input[name="fi-radio-selectedPlan"]:checked');
+            const planRadio = appForm.querySelector('input[name="selectedPlan"]:checked');
             const planTarget = document.getElementById('summary-selectedPlan');
             if (planTarget) planTarget.textContent = planRadio ? planRadio.value : 'Not selected';
           }
           if (stepNames[current] === 'payment') {
-            const planRadio = appForm.querySelector('input[name="fi-radio-selectedPlan"]:checked');
+            const planRadio = appForm.querySelector('input[name="selectedPlan"]:checked');
             const priceMatch = planRadio && planRadio.value.match(/\$[\d.]+(\/mo| one-time)?/);
             const amountEl = document.getElementById('paymentAmountDisplay');
             const labelEl = document.getElementById('paymentAmountLabel');
@@ -808,14 +831,38 @@ document.addEventListener('DOMContentLoaded', () => {
     appForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const statusBox = document.getElementById('applicationStatus');
+      // small helper so a missing/renamed element never crashes this
+      // handler silently, every status update goes through here
+      const setStatus = (text, isError) => {
+        console.log('[application form]', text);
+        if (!statusBox) return;
+        statusBox.textContent = text;
+        statusBox.className = isError ? 'mt-4 text-sm font-bold text-red-600' : 'mt-4 text-sm font-bold text-emerald-700';
+      };
       const endpointUrl = appForm.dataset.endpointUrl;
       if (!endpointUrl || endpointUrl === 'YOUR_GOOGLE_SCRIPT_URL') {
-        statusBox.textContent = 'This form needs its Google Apps Script URL set up first. See How-To-Set-Up-Google-Backend.md, then paste the URL into data-endpoint-url.';
-        statusBox.className = 'mt-4 text-sm font-bold text-red-600';
+        setStatus('This form needs its Google Apps Script URL set up first. See How-To-Set-Up-Google-Backend.md, then paste the URL into data-endpoint-url.', true);
         return;
       }
       const submitBtn = appForm.querySelector('[type="submit"]');
+      const resetSubmitBtn = () => { if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Activate Membership'; } };
       if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
+
+      // every attached file's status pill, so "did it upload" has a real
+      // visible answer instead of only the misleading pre-submit "Selected"
+      // state, these get set to Sending… now, then Sent or Couldn't Send
+      // once we actually know the outcome, further down
+      const fileInputs = Array.from(appForm.querySelectorAll('input[type="file"]'));
+      const attachedInputs = fileInputs.filter(input => input.files && input.files[0]);
+      const setPillStatus = (input, status, label) => {
+        const card = input.closest('.upload-card');
+        const pill = card && card.querySelector('.upload-status-pill');
+        if (!pill) return;
+        pill.textContent = label;
+        pill.dataset.status = status;
+      };
+      attachedInputs.forEach(input => setPillStatus(input, 'sending', 'Sending…'));
+
       try {
         // Files are sent as plain base64 text fields instead of raw
         // File objects, deliberately, Apps Script's handling of actual
@@ -823,22 +870,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // practice, base64-encoding them into ordinary string fields
         // sidesteps that completely, every field the backend receives
         // is just plain text, nothing for it to misinterpret.
-        const fileInputs = Array.from(appForm.querySelectorAll('input[type="file"]'));
-        const fileReadPromises = fileInputs
-          .filter(input => input.files && input.files[0])
-          .map(input => new Promise((resolve, reject) => {
+        let encodedFiles;
+        try {
+          encodedFiles = await Promise.all(attachedInputs.map(input => new Promise((resolve, reject) => {
             const file = input.files[0];
             const reader = new FileReader();
             reader.onload = () => {
               // reader.result looks like "data:image/png;base64,AAAA...",
               // only the part after the comma is the actual base64 payload
               const base64 = reader.result.split(',')[1];
-              resolve({ fieldName: input.name, base64, filename: file.name, mimeType: file.type || 'application/octet-stream' });
+              resolve({ input, fieldName: input.name, base64, filename: file.name, mimeType: file.type || 'application/octet-stream' });
             };
-            reader.onerror = reject;
+            reader.onerror = () => reject(new Error(`Couldn't read the file "${file.name}" from your device.`));
             reader.readAsDataURL(file);
-          }));
-        const encodedFiles = await Promise.all(fileReadPromises);
+          })));
+        } catch (readErr) {
+          // one specific file couldn't even be read locally, no network
+          // involved yet, so we know exactly which one and can say so
+          attachedInputs.forEach(input => setPillStatus(input, 'failed', "Couldn't Send"));
+          throw readErr;
+        }
 
         // Everything (plain fields AND the base64 file fields) goes into
         // one plain object, sent as a single JSON string in the raw POST
@@ -871,12 +922,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // error, DNS failure, wrong URL, that kind of thing). Content-Type
         // has to stay one of the browser's "simple request" values for a
         // no-cors POST to be allowed at all, text/plain is on that list.
+        // If fetch() itself throws here (the catch block below), the
+        // request never left the browser, that's the one case we CAN
+        // reliably detect and report honestly.
         await fetch(endpointUrl, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload),
         });
+
+        // fetch() resolving only means the browser managed to send the
+        // request, not that Apps Script accepted it, no-cors makes that
+        // second part unreadable from here, this pill state means "sent
+        // successfully from your browser", the honest ceiling of what
+        // this page can actually confirm
+        attachedInputs.forEach(input => setPillStatus(input, 'sent', 'Sent'));
+
         // hide every step panel and show the success panel instead,
         // the actual value of this step is that the full questionnaire
         // (including any uploaded documents) has just been sent to our team
@@ -885,9 +947,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (successPanel) successPanel.classList.add('active');
         fireConfetti();
       } catch (err) {
-        statusBox.textContent = "Could not reach the server. Please email us directly instead.";
-        statusBox.className = 'mt-4 text-sm font-bold text-red-600';
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Activate Membership'; }
+        console.error('[application form] submission failed:', err);
+        attachedInputs.forEach(input => {
+          const pill = input.closest('.upload-card')?.querySelector('.upload-status-pill');
+          if (pill && pill.dataset.status === 'sending') setPillStatus(input, 'failed', "Couldn't Send");
+        });
+        setStatus(err && err.message ? err.message : 'Could not reach the server. Please email us directly instead.', true);
+        resetSubmitBtn();
       }
     });
   }

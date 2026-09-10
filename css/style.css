@@ -1732,7 +1732,9 @@ label:has(> .field-invalid), .field-invalid + label { color: #C0392B; }
 .upload-dropzone:hover .upload-dropzone-hint { color: #1F4A3A; }
 .upload-status-pill { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; padding: 5px 14px; border-radius: 999px; }
 .upload-status-pill[data-status="pending"] { background: #F3D9A6; color: #7A5416; }
-.upload-status-pill[data-status="uploaded"] { background: #1F4A3A; color: #F8F5EF; }
+.upload-status-pill[data-status="uploaded"], .upload-status-pill[data-status="selected"], .upload-status-pill[data-status="sent"] { background: #1F4A3A; color: #F8F5EF; }
+.upload-status-pill[data-status="sending"] { background: #2E5B8A; color: #F8F5EF; }
+.upload-status-pill[data-status="failed"] { background: #7A1F1F; color: #F8F5EF; }
 .upload-input-hidden { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
 .upload-card.has-file .upload-dropzone { border-color: #1F4A3A; border-style: solid; background: #F3F8F5; }
 .page-hero-photo .hero-bg-layer { position: absolute; inset: 0; overflow: hidden; z-index: 0; }
