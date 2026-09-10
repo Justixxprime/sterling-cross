@@ -637,38 +637,56 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   if (appForm) {
+    // Every upload pill (Pending / Selected / Too Large / Sending / Sent
+    // / Couldn't Send) goes through this one function, one icon+label per
+    // status, used both the moment a file is picked and later during the
+    // real submission, so the two moments can never drift out of sync
+    // with each other or show contradictory states.
+    const UPLOAD_STATUS = {
+      pending: { icon: 'fa-clock', text: 'Pending' },
+      selected: { icon: 'fa-circle-check', text: 'Selected' },
+      toolarge: { icon: 'fa-triangle-exclamation', text: 'Too Large' },
+      sending: { icon: 'fa-spinner fa-spin', text: 'Sending…' },
+      sent: { icon: 'fa-check', text: 'Sent' },
+      failed: { icon: 'fa-xmark', text: "Couldn't Send" },
+    };
+    function setUploadStatus(input, statusKey) {
+      const card = input.closest('.upload-card');
+      const pill = card && card.querySelector('.upload-status-pill');
+      const meta = UPLOAD_STATUS[statusKey];
+      if (!pill || !meta) return;
+      pill.dataset.status = statusKey;
+      pill.innerHTML = `<i class="upload-status-icon fa-solid ${meta.icon}"></i><span class="upload-status-text">${meta.text}</span>`;
+    }
+
     // Photo upload dropzones. Picking a file here only proves the
     // browser can see it on your disk, it hasn't gone anywhere yet, the
     // actual send only happens later when "Activate Membership" is
     // clicked. The pill says "Selected" at this point, not "Uploaded",
     // on purpose, calling it "Uploaded" this early was misleading:
     // it made it look like the file had already reached our server
-    // when nothing had been sent yet. The real "did it upload"
-    // states (Sending…, Sent, Couldn't send) are set later, during
-    // actual submission, further down in this file.
+    // when nothing had been sent yet. The real "did it upload" states
+    // (Sending…/Sent/Couldn't Send, with a spinner/check/x icon) are
+    // set later, during actual submission, further down in this file.
     appForm.querySelectorAll('.upload-input-hidden').forEach((input) => {
       input.addEventListener('change', () => {
         const card = input.closest('.upload-card');
-        const pill = card.querySelector('.upload-status-pill');
         const label = card.querySelector('.upload-dropzone-label');
         const dropzoneOriginalLabel = label.dataset.originalLabel || (label.dataset.originalLabel = label.textContent);
         if (input.files && input.files[0]) {
           const file = input.files[0];
           if (file.size > 10 * 1024 * 1024) {
-            pill.textContent = 'Too Large';
-            pill.dataset.status = 'pending';
+            setUploadStatus(input, 'toolarge');
             card.classList.remove('has-file');
             input.value = '';
             label.textContent = dropzoneOriginalLabel;
             return;
           }
-          pill.textContent = 'Selected';
-          pill.dataset.status = 'selected';
+          setUploadStatus(input, 'selected');
           card.classList.add('has-file');
           label.textContent = file.name.length > 18 ? file.name.slice(0, 15) + '…' : file.name;
         } else {
-          pill.textContent = 'Pending';
-          pill.dataset.status = 'pending';
+          setUploadStatus(input, 'pending');
           card.classList.remove('has-file');
           label.textContent = dropzoneOriginalLabel;
         }
@@ -712,7 +730,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const evt = field.type === 'checkbox' ? 'change' : 'input';
       const visibleTarget = field;
       field.addEventListener(evt, () => {
-        const isValid = field.type === 'checkbox' ? field.checked : field.value.trim();
+        // .checkValidity() catches both "empty" and "wrong format" (e.g.
+        // an email with no @), .value.trim() alone only ever caught the
+        // first of those
+        const isValid = field.type === 'checkbox' ? field.checked : (field.checkValidity ? field.checkValidity() : field.value.trim());
         if (isValid) visibleTarget?.classList.remove('field-invalid');
       });
     });
@@ -757,9 +778,17 @@ document.addEventListener('DOMContentLoaded', () => {
             continue;
           }
           // checkboxes report a truthy .value ("on") even when unchecked,
-          // so they need their own check, everything else (text, select,
-          // textarea) is validated by whether it has a non-empty value
-          const isEmpty = field.type === 'checkbox' ? !field.checked : !field.value.trim();
+          // so they need their own check, radios were already handled
+          // above, everything else (text, email, tel, select, textarea)
+          // is checked with checkValidity() rather than just "is it
+          // non-empty" so a badly-formatted value (an email with no @,
+          // for instance) gets caught right here, while the field is
+          // still on screen and focusable, instead of only surfacing
+          // much later at final submit time when the browser's own
+          // validation would try and fail to focus a field that's since
+          // been hidden behind a later step, silently blocking
+          // submission with no visible error at all
+          const isEmpty = field.type === 'checkbox' ? !field.checked : (field.checkValidity ? !field.checkValidity() : !field.value.trim());
           const visibleTarget = field;
           visibleTarget?.classList.toggle('field-invalid', isEmpty);
           if (isEmpty && !firstInvalid) firstInvalid = visibleTarget || field;
@@ -839,29 +868,67 @@ document.addEventListener('DOMContentLoaded', () => {
         statusBox.textContent = text;
         statusBox.className = isError ? 'mt-4 text-sm font-bold text-red-600' : 'mt-4 text-sm font-bold text-emerald-700';
       };
+
+      // Belt-and-suspenders check across every step, not just the one
+      // currently on screen: each "Continue" click already validates the
+      // step being left, but this catches anything that ever slips past
+      // that (a future bug, a restored browser session, whatever) BEFORE
+      // trying to send. This form also carries novalidate now, so the
+      // browser's own built-in validation never runs, that native
+      // validation is exactly what was silently blocking submission
+      // before: it was finding an empty/invalid field on an earlier,
+      // now-hidden step, trying to focus it to show the "please fill
+      // this out" bubble, failing because a display:none field can't be
+      // focused, and giving up with zero visible sign anything went
+      // wrong beyond a console warning ("...is not focusable"). Doing
+      // our own check here means a real problem still stops submission,
+      // but with a message you can actually see and a jump to the right
+      // step, not silence.
+      for (let i = 0; i < panels.length; i++) {
+        const panel = panels[i];
+        if (!panel) continue;
+        const seenGroups = new Set();
+        let panelInvalid = false;
+        for (const field of panel.querySelectorAll('[required]')) {
+          if (field.type === 'radio') {
+            if (seenGroups.has(field.name)) continue;
+            seenGroups.add(field.name);
+            const anyChecked = [...panel.querySelectorAll(`input[type="radio"][name="${field.name}"]`)].some(r => r.checked);
+            if (!anyChecked) { panelInvalid = true; break; }
+            continue;
+          }
+          const invalid = field.type === 'checkbox' ? !field.checked : (field.checkValidity ? !field.checkValidity() : !field.value.trim());
+          if (invalid) { panelInvalid = true; break; }
+        }
+        if (panelInvalid) {
+          current = i;
+          render();
+          setStatus('Please complete every required field before submitting, we jumped you back to the step that needs attention.', true);
+          return;
+        }
+      }
+
       const endpointUrl = appForm.dataset.endpointUrl;
       if (!endpointUrl || endpointUrl === 'YOUR_GOOGLE_SCRIPT_URL') {
         setStatus('This form needs its Google Apps Script URL set up first. See How-To-Set-Up-Google-Backend.md, then paste the URL into data-endpoint-url.', true);
         return;
       }
       const submitBtn = appForm.querySelector('[type="submit"]');
-      const resetSubmitBtn = () => { if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Activate Membership'; } };
+      const progressTrack = document.getElementById('submitProgressTrack');
+      const resetSubmitBtn = () => {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Activate Membership'; }
+        progressTrack?.classList.add('hidden');
+      };
       if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
+      progressTrack?.classList.remove('hidden');
 
       // every attached file's status pill, so "did it upload" has a real
       // visible answer instead of only the misleading pre-submit "Selected"
-      // state, these get set to Sending… now, then Sent or Couldn't Send
-      // once we actually know the outcome, further down
+      // state: a spinner while sending, then a check or an x once we
+      // actually know the outcome, further down
       const fileInputs = Array.from(appForm.querySelectorAll('input[type="file"]'));
       const attachedInputs = fileInputs.filter(input => input.files && input.files[0]);
-      const setPillStatus = (input, status, label) => {
-        const card = input.closest('.upload-card');
-        const pill = card && card.querySelector('.upload-status-pill');
-        if (!pill) return;
-        pill.textContent = label;
-        pill.dataset.status = status;
-      };
-      attachedInputs.forEach(input => setPillStatus(input, 'sending', 'Sending…'));
+      attachedInputs.forEach(input => setUploadStatus(input, 'sending'));
 
       try {
         // Files are sent as plain base64 text fields instead of raw
@@ -887,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (readErr) {
           // one specific file couldn't even be read locally, no network
           // involved yet, so we know exactly which one and can say so
-          attachedInputs.forEach(input => setPillStatus(input, 'failed', "Couldn't Send"));
+          attachedInputs.forEach(input => setUploadStatus(input, 'failed'));
           throw readErr;
         }
 
@@ -937,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // second part unreadable from here, this pill state means "sent
         // successfully from your browser", the honest ceiling of what
         // this page can actually confirm
-        attachedInputs.forEach(input => setPillStatus(input, 'sent', 'Sent'));
+        attachedInputs.forEach(input => setUploadStatus(input, 'sent'));
 
         // hide every step panel and show the success panel instead,
         // the actual value of this step is that the full questionnaire
@@ -949,8 +1016,9 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {
         console.error('[application form] submission failed:', err);
         attachedInputs.forEach(input => {
-          const pill = input.closest('.upload-card')?.querySelector('.upload-status-pill');
-          if (pill && pill.dataset.status === 'sending') setPillStatus(input, 'failed', "Couldn't Send");
+          const card = input.closest('.upload-card');
+          const pill = card && card.querySelector('.upload-status-pill');
+          if (pill && pill.dataset.status === 'sending') setUploadStatus(input, 'failed');
         });
         setStatus(err && err.message ? err.message : 'Could not reach the server. Please email us directly instead.', true);
         resetSubmitBtn();

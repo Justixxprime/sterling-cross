@@ -21,7 +21,7 @@
  */
 
 // ====================== EDIT THESE 3 LINES ======================
-const NOTIFICATION_EMAIL = 'antonicharleswojcik@gmail.com'; // where new-application emails go
+const NOTIFICATION_EMAIL = 'you@sterlingcross.law'; // where new-application emails go
 const DRIVE_FOLDER_NAME = 'Legal Plan Applications — Uploaded Documents';
 const SHEET_TAB_NAME = 'Applications';
 // ==================================================================
@@ -96,31 +96,42 @@ const COLUMN_ORDER = [
 function doPost(e) {
   try {
     // The application form sends its submission as ONE JSON string in
-    // the raw POST body (Content-Type: text/plain), not as
-    // multipart/form-data fields. This is deliberate: Apps Script's
-    // e.parameter parsing for multipart/form-data is unreliable once a
-    // field's value reaches the tens/hundreds of KB, exactly the size
-    // of a base64-encoded photo or PDF, so uploaded documents (and
-    // sometimes the whole submission) were being silently dropped
-    // before ever reaching this script. Reading the whole request body
-    // as one JSON string via e.postData.contents has no such per-field
-    // size limit, this is the actual fix for that.
+    // the raw POST body, not as multipart/form-data fields. This is
+    // deliberate: Apps Script's e.parameter parsing for
+    // multipart/form-data is unreliable once a field's value reaches
+    // the tens/hundreds of KB, exactly the size of a base64-encoded
+    // photo or PDF, so uploaded documents (and sometimes the whole
+    // submission) were being silently dropped before ever reaching
+    // this script. Reading the whole request body as one JSON string
+    // via e.postData.contents has no such per-field size limit.
+    //
+    // We deliberately do NOT gate this on the exact value of
+    // e.postData.type (e.g. checking it equals 'text/plain'). The
+    // browser actually sends 'text/plain;charset=utf-8', and exactly
+    // how Apps Script reports that back isn't something to depend on
+    // an exact string match for, an early version of this file did
+    // exactly that, it silently fell through to the e.parameter
+    // fallback below (which is empty for a JSON body), producing
+    // applications saved with every field blank, no error thrown, no
+    // visible sign anything was wrong. Instead: if there's a raw body
+    // at all, just try to parse it as JSON, and only fall back if that
+    // actually fails.
     //
     // The admin dashboard's small action requests (status changes,
     // password changes, deletions) still arrive the old way, as
     // regular multipart/form-data fields in e.parameter, since those
     // values are tiny and that path already works fine, so both are
     // supported here.
-    let params;
-    if (e.postData && e.postData.type === 'text/plain' && e.postData.contents) {
+    let params = null;
+    if (e.postData && e.postData.contents) {
       try {
-        params = JSON.parse(e.postData.contents);
+        const parsed = JSON.parse(e.postData.contents);
+        if (parsed && typeof parsed === 'object') params = parsed;
       } catch (parseErr) {
-        // not JSON after all (or malformed), fall back to whatever
-        // Apps Script parsed as ordinary form fields
-        params = e.parameter || {};
+        // not JSON, that's fine, fall through to e.parameter below
       }
-    } else {
+    }
+    if (!params) {
       params = e.parameter || {};
     }
 
@@ -452,7 +463,11 @@ function testSubmission() {
   const fakeEvent = {
     parameter: {},
     postData: {
-      type: 'text/plain',
+      // deliberately includes the charset suffix, exactly like what a
+      // real browser sends, this is what the exact-match bug above used
+      // to trip over, keeping it here means this test actually catches
+      // that class of bug again if it's ever reintroduced
+      type: 'text/plain;charset=utf-8',
       contents: JSON.stringify(fakePayload),
     },
   };

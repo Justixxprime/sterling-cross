@@ -1730,13 +1730,24 @@ label:has(> .field-invalid), .field-invalid + label { color: #C0392B; }
 .upload-dropzone-label { font-weight: 800; font-size: 14px; }
 .upload-dropzone-hint { font-size: 12.5px; font-weight: 700; color: #B8873B; margin-bottom: 6px; transition: color .2s ease; }
 .upload-dropzone:hover .upload-dropzone-hint { color: #1F4A3A; }
-.upload-status-pill { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; padding: 5px 14px; border-radius: 999px; }
+.upload-status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; padding: 5px 14px; border-radius: 999px; }
+.upload-status-icon { font-size: 11px; line-height: 1; }
 .upload-status-pill[data-status="pending"] { background: #F3D9A6; color: #7A5416; }
-.upload-status-pill[data-status="uploaded"], .upload-status-pill[data-status="selected"], .upload-status-pill[data-status="sent"] { background: #1F4A3A; color: #F8F5EF; }
+.upload-status-pill[data-status="toolarge"] { background: #F3D9A6; color: #7A5416; }
+.upload-status-pill[data-status="uploaded"], .upload-status-pill[data-status="selected"] { background: #E4B15D; color: #1F1A0F; }
 .upload-status-pill[data-status="sending"] { background: #2E5B8A; color: #F8F5EF; }
+.upload-status-pill[data-status="sent"] { background: #1F4A3A; color: #F8F5EF; }
 .upload-status-pill[data-status="failed"] { background: #7A1F1F; color: #F8F5EF; }
 .upload-input-hidden { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
 .upload-card.has-file .upload-dropzone { border-color: #1F4A3A; border-style: solid; background: #F3F8F5; }
+/* Indeterminate loading line shown under Activate Membership while the
+   application (and any attached files) is actually being sent, so
+   there's always a visible "something is happening" signal for the
+   several seconds a large file can take to encode and send. */
+.submit-progress-track { position: relative; height: 4px; border-radius: 999px; background: rgba(14,27,43,0.08); overflow: hidden; margin-top: 14px; }
+.submit-progress-track.hidden { display: none; }
+.submit-progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 40%; border-radius: 999px; background: #B8873B; animation: submitProgressSlide 1.1s ease-in-out infinite; }
+@keyframes submitProgressSlide { 0% { left: -40%; } 100% { left: 100%; } }
 .page-hero-photo .hero-bg-layer { position: absolute; inset: 0; overflow: hidden; z-index: 0; }
 .page-hero-photo .hero-bg-layer img { width: 100%; height: 100%; object-fit: cover; animation: kenBurns 11s ease-in-out infinite alternate; }
 .page-hero-photo .hero-bg-layer::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,27,43,0.55), rgba(14,27,43,0.88)); }

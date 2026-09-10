@@ -266,7 +266,7 @@
 <div class="step-line"></div>
 <div class="step-dot flex-shrink-0" id="dot-payment">5</div>
 </div>
-<form data-endpoint-url="https://script.google.com/macros/s/AKfycbzb0xxoSE1KrFN6FDmxjs8lf2db8QNe1ZmZSbxpInHd1KQbBMckenSWElXzp2BukhTZXg/exec" enctype="multipart/form-data" id="applicationForm" method="POST">
+<form data-endpoint-url="https://script.google.com/macros/s/AKfycbzb0xxoSE1KrFN6FDmxjs8lf2db8QNe1ZmZSbxpInHd1KQbBMckenSWElXzp2BukhTZXg/exec" enctype="multipart/form-data" id="applicationForm" method="POST" novalidate="">
 <input name="subject" type="hidden" value="New Legal Plan application, Sterling and Cross"/>
 <!-- STEP 0: CHOOSE YOUR PLAN -->
 
@@ -751,7 +751,7 @@
 <i class="fa-solid fa-image upload-dropzone-icon"></i>
 <p class="upload-dropzone-label">Document <b>1</b></p>
 <p class="upload-dropzone-hint">Click to upload</p>
-<span class="upload-status-pill" data-status="pending">Pending</span>
+<span class="upload-status-pill" data-status="pending"><i class="upload-status-icon fa-solid fa-clock"></i><span class="upload-status-text">Pending</span></span>
 </label>
 <input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_1" name="document1" type="file"/>
 <p class="text-xs text-ink/40 mt-2 text-center">JPG, PNG, PDF (Max 10MB)</p>
@@ -761,7 +761,7 @@
 <i class="fa-solid fa-image upload-dropzone-icon"></i>
 <p class="upload-dropzone-label">Document <b>2</b></p>
 <p class="upload-dropzone-hint">Click to upload</p>
-<span class="upload-status-pill" data-status="pending">Pending</span>
+<span class="upload-status-pill" data-status="pending"><i class="upload-status-icon fa-solid fa-clock"></i><span class="upload-status-text">Pending</span></span>
 </label>
 <input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_2" name="document2" type="file"/>
 <p class="text-xs text-ink/40 mt-2 text-center">JPG, PNG, PDF (Max 10MB)</p>
@@ -771,7 +771,7 @@
 <i class="fa-solid fa-image upload-dropzone-icon"></i>
 <p class="upload-dropzone-label">Document <b>3</b></p>
 <p class="upload-dropzone-hint">Click to upload</p>
-<span class="upload-status-pill" data-status="pending">Pending</span>
+<span class="upload-status-pill" data-status="pending"><i class="upload-status-icon fa-solid fa-clock"></i><span class="upload-status-text">Pending</span></span>
 </label>
 <input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_3" name="document3" type="file"/>
 <p class="text-xs text-ink/40 mt-2 text-center">JPG, PNG, PDF (Max 10MB)</p>
@@ -920,6 +920,9 @@
 <button class="btn-magnetic btn-activate w-full font-bold py-4 rounded-full flex items-center justify-center gap-2 text-base" type="submit">
 <i class="fa-solid fa-lock"></i> Activate Membership
               </button>
+</div>
+<div class="submit-progress-track hidden" id="submitProgressTrack">
+<div class="submit-progress-fill" id="submitProgressFill"></div>
 </div>
 <p class="text-xs text-ink/40 text-center mt-4">
               No payment is collected at the time of application. Your
