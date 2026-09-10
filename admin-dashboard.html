@@ -73,6 +73,15 @@ main { max-width: 1320px; margin: 0 auto; padding: 28px; }
   .detail-header, .detail-body { padding-left: 18px; padding-right: 18px; }
   .field-row { flex-direction: column; gap: 2px; }
   .field-row .v { text-align: left; }
+  /* the label used a fixed width + ellipsis truncation that only
+     revealed the full text on hover, which doesn't exist on a touch
+     screen, so on narrow screens it's shown on its own full-width line
+     above the bar instead, wrapping if it needs to, rather than cut off
+     with no way to ever see the rest of it */
+  .breakdown-row { flex-wrap: wrap; align-items: flex-start; }
+  .breakdown-row .label { width: 100%; white-space: normal; overflow: visible; text-overflow: clip; order: 1; }
+  .breakdown-row .bar-track { order: 3; width: 100%; margin-top: 2px; }
+  .breakdown-row .count { order: 2; margin-left: auto; }
 }
 .panel { background: #fff; border-radius: 16px; padding: 22px; border: 1px solid rgba(22,20,16,0.06); }
 .panel h3 { font-size: 15px; margin-bottom: 16px; }
@@ -86,7 +95,7 @@ main { max-width: 1320px; margin: 0 auto; padding: 28px; }
 .table-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
 .table-toolbar input, .table-toolbar select { padding: 9px 12px; border: 1.5px solid rgba(22,20,16,0.12); border-radius: 9px; font-size: 13px; font-family: inherit; background: #fff; }
 .table-toolbar input { flex: 1; min-width: 200px; }
-.table-wrap { background: #fff; border-radius: 16px; border: 1px solid rgba(22,20,16,0.06); overflow: hidden; }
+.table-wrap { background: #fff; border-radius: 16px; border: 1px solid rgba(22,20,16,0.06); overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 thead th { text-align: left; padding: 12px 16px; background: var(--mist); font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--steel); cursor: pointer; user-select: none; white-space: nowrap; }
 thead th:hover { color: var(--ink); }
@@ -651,11 +660,19 @@ function deleteApplication(rowNum, applicantName) {
   fetch(DEFAULT_ENDPOINT, { method: 'POST', mode: 'no-cors', body })
     .then(() => {
       closeDetail();
-      allRows = allRows.filter(r => r._row !== rowNum);
+      // sheet.deleteRow() on the backend shifts every row below the
+      // deleted one up by one, this has to be mirrored here immediately,
+      // not just filtered out, or every row's cached _row number is off
+      // by one until the resync below finishes, so deleting a second
+      // item quickly (exactly what clearing out several test rows in a
+      // row looks like) targets the wrong physical row on the sheet,
+      // this was why deletes looked like they "didn't work"
+      allRows = allRows
+        .filter(r => r._row !== rowNum)
+        .map(r => r._row > rowNum ? { ...r, _row: r._row - 1 } : r);
       render();
-      // row numbers of everything below the deleted row just shifted by
-      // one on the actual Sheet, resync shortly after so the next
-      // status change or delete targets the right row, not a stale one
+      // resync shortly after anyway, as a safety net in case anything
+      // else changed the sheet in the meantime
       setTimeout(loadData, 1200);
     });
 }
