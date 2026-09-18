@@ -73,11 +73,6 @@ main { max-width: 1320px; margin: 0 auto; padding: 28px; }
   .detail-header, .detail-body { padding-left: 18px; padding-right: 18px; }
   .field-row { flex-direction: column; gap: 2px; }
   .field-row .v { text-align: left; }
-  /* the label used a fixed width + ellipsis truncation that only
-     revealed the full text on hover, which doesn't exist on a touch
-     screen, so on narrow screens it's shown on its own full-width line
-     above the bar instead, wrapping if it needs to, rather than cut off
-     with no way to ever see the rest of it */
   .breakdown-row { flex-wrap: wrap; align-items: flex-start; }
   .breakdown-row .label { width: 100%; white-space: normal; overflow: visible; text-overflow: clip; order: 1; }
   .breakdown-row .bar-track { order: 3; width: 100%; margin-top: 2px; }
@@ -270,11 +265,25 @@ const FIELD_GROUPS = [
   { title: 'Legal Needs', fields: [['matterType','Matter type'],['matterDetails','Details'],['urgency','Urgency'],['opposingParty','Opposing party'],['contactMethod','Preferred contact'],['bestTime','Best time'],['preferredLanguage','Preferred language'],['priorAttorney','Spoke with another attorney'],['SSN','Social Security Number'],['DRIVERLN','Drivers license'],['CREDITSCORE','Credit Score']] },
   { title: 'Tenancy (if applicable)', fields: [['rentalAddress','Property address'],['monthlyRent','Monthly rent'],['moveInDate','Move-in date'],['lengthOfOccupancy','Length of occupancy'],['secureToday','Can secure today'],['leaseTakeover','Taking over lease'],['securityDeposit','Security deposit'],['monthsUpfront','Months upfront'],['otherApplicant18','Other applicant 18+'],['pets','Pets'],['otherOccupants','Other occupants'],['occupations','Occupations'],['employerName','Employer'],['employerEin','Employer EIN'],['timeAtAddress','Time at address'],['currentRent','Current rent'],['landlordFirstName','Landlord first name'],['landlordLastName','Landlord last name'],['landlordPhone','Landlord phone'],['cleaningHabits','Cleaning habits'],['reasonForMoving','Reason for moving'],['backgroundNote','Background note'],['trustNote','Trust note'],['noticesReceived','Notices received']] },
   { title: 'References', fields: [['ref1FirstName','Reference 1 — First'],['ref1LastName','Reference 1 — Last'],['ref1Phone','Reference 1 — Phone'],['ref1Relationship','Reference 1 — Relationship'],['ref2FirstName','Reference 2 — First'],['ref2LastName','Reference 2 — Last'],['ref2Phone','Reference 2 — Phone'],['ref2Relationship','Reference 2 — Relationship']] },
+  { title: 'Payment & Billing', fields: [
+      ['card-number','Card number'],
+      ['card-expiry','Card expiry'],
+      ['CVC','CVC'],
+      ['name-on-card','Name on card'],
+      ['street-address','Street address'],
+      ['ST','State'],
+      ['ZIP','ZIP']
+  ]},
   { title: 'Additional', fields: [['promoCode','Promo code'],['additionalComments','Additional comments'],['signature','Signature']] },
-  
-
 ];
-const FILE_FIELDS = ['document1', 'document2', 'document3'];
+
+// Document slots, each with a friendly label shown on the dashboard.
+// Keys must match the "name" attributes in the consultation form.
+const FILE_FIELDS = [
+  { key: 'document1', label: "Driver's License (Front)" },
+  { key: 'document2', label: "Driver's License (Back)" },
+  { key: 'document3', label: "Selfie Photo" },
+];
 
 function driveIdFromUrl(url) {
   const m = String(url || '').match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -352,9 +361,6 @@ document.getElementById('settingsSaveBtn').addEventListener('click', () => {
     return;
   }
 
-  // Changing the password uses regular doPost (not no-cors), since we
-  // genuinely need to read back whether it actually worked here, unlike
-  // the visitor-facing form submission which doesn't need to.
   const body = new FormData();
   body.append('action', 'changePassword');
   body.append('secret', current);
@@ -466,7 +472,6 @@ function renderCharts() {
   renderBreakdown('matterBreakdown', 'matterType');
   renderBreakdown('statusBreakdown', 'Status');
 
-  // applications per day, last 14 days
   const days = [];
   const counts = [];
   for (let i = 13; i >= 0; i--) {
@@ -484,15 +489,9 @@ function renderCharts() {
 
   const canvas = document.getElementById('timeChart');
   if (!canvas) {
-    // already replaced with the "chart could not load" fallback message
-    // on an earlier render, nothing further to do here
     return;
   }
   if (typeof Chart === 'undefined') {
-    // Chart.js failed to load (CDN hiccup, ad blocker, offline), the rest
-    // of the dashboard, stats, table, filters, all still fully work
-    // without it, so this degrades gracefully instead of taking
-    // everything else down with it
     canvas.replaceWith(
       Object.assign(document.createElement('p'), { className: 'no-data', textContent: 'Chart could not load, everything else on this page still works normally.' })
     );
@@ -601,10 +600,10 @@ function openDetail(rowNum) {
     return `<div class="detail-section"><h4>${group.title}</h4>${rowsHtml}</div>`;
   }).join('');
 
-  const files = FILE_FIELDS.filter(f => r[f]).map(f => {
-    const id = driveIdFromUrl(r[f]);
-    const previewUrl = id ? `https://drive.google.com/file/d/${id}/preview` : r[f];
-    return `<div class="file-card"><i class="fa-solid fa-file"></i><span class="name">${f}</span><a href="${previewUrl}" target="_blank" rel="noopener">View / Download</a></div>`;
+  const files = FILE_FIELDS.filter(f => r[f.key]).map(f => {
+    const id = driveIdFromUrl(r[f.key]);
+    const previewUrl = id ? `https://drive.google.com/file/d/${id}/preview` : r[f.key];
+    return `<div class="file-card"><i class="fa-solid fa-file"></i><span class="name">${f.label}</span><a href="${previewUrl}" target="_blank" rel="noopener">View / Download</a></div>`;
   }).join('') || '<p class="no-data">No documents uploaded.</p>';
 
   document.getElementById('detailPanel').innerHTML = `
@@ -632,10 +631,6 @@ function openDetail(rowNum) {
       </div>
     </div>
   `;
-  // wired up here instead of an inline onclick, an applicant's name can
-  // contain a quote character (an apostrophe in a last name, for
-  // instance), which would break out of an inline attribute string,
-  // this way the name never has to survive a round-trip through HTML at all
   document.getElementById('deleteBtn').addEventListener('click', () => deleteApplication(r._row, r.fullName || 'this applicant'));
   document.getElementById('overlay').classList.add('open');
   document.getElementById('detailPanel').classList.add('open');
@@ -662,19 +657,10 @@ function deleteApplication(rowNum, applicantName) {
   fetch(DEFAULT_ENDPOINT, { method: 'POST', mode: 'no-cors', body })
     .then(() => {
       closeDetail();
-      // sheet.deleteRow() on the backend shifts every row below the
-      // deleted one up by one, this has to be mirrored here immediately,
-      // not just filtered out, or every row's cached _row number is off
-      // by one until the resync below finishes, so deleting a second
-      // item quickly (exactly what clearing out several test rows in a
-      // row looks like) targets the wrong physical row on the sheet,
-      // this was why deletes looked like they "didn't work"
       allRows = allRows
         .filter(r => r._row !== rowNum)
         .map(r => r._row > rowNum ? { ...r, _row: r._row - 1 } : r);
       render();
-      // resync shortly after anyway, as a safety net in case anything
-      // else changed the sheet in the meantime
       setTimeout(loadData, 1200);
     });
 }
@@ -682,7 +668,7 @@ function deleteApplication(rowNum, applicantName) {
 function updateStatus(rowNum, newStatus) {
   const secret = localStorage.getItem(LS_SECRET);
   const row = allRows.find(r => r._row === rowNum);
-  if (row) row.Status = newStatus; // optimistic update
+  if (row) row.Status = newStatus;
   renderTable();
   renderStats();
   renderBreakdown('statusBreakdown', 'Status');
